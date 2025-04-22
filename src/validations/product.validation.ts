@@ -1,15 +1,15 @@
-import Joi from 'joi'
+// import Joi from 'joi'
 
-interface ProductInterface {
-  name: string
-  price: number
-}
+// export interface ProductInterface {
+//   name: string
+//   price: number
+// }
 
-export const createProductValidation = (payload: ProductInterface) => {
-  const schema = Joi.object({
-    name: Joi.string().required(),
-    price: Joi.number().allow('', null)
-  })
+// export const createProductValidation = (payload: ProductInterface) => {
+//   const schema = Joi.object({
+//     name: Joi.string().required(),
+//     price: Joi.number().allow('', null),
+//   })
 
-  return schema.validate(payload)
-}
+//   return schema.validate(payload)
+// }

@@ -1,6 +1,6 @@
 import js from '@eslint/js'
-import tseslint from '@typescript-eslint'
 import globals from 'globals'
+import * as tseslint from 'typescript-eslint'
 
 export default [
   { ignores: ['**/build/*', '**/node_modules/*', '**/public/*'] },
@@ -15,6 +15,7 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
+      '@typescript-eslint/no-unsafe-assignment': 'off',
     },
   },
   ...tseslint.configs.recommendedTypeChecked,

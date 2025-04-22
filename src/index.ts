@@ -21,7 +21,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 routes(app)
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   logger.error(err.message)
   res.status(500).json({ error: 'Internal Server Error' })
 })
