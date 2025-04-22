@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response, Router } from 'express'
 import { logger } from '../utils/logger'
 
 export const HealthRouter: Router = Router()

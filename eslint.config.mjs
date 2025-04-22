@@ -1,17 +1,30 @@
+import js from '@eslint/js'
+import tseslint from '@typescript-eslint'
 import globals from 'globals'
-import pluginJs from '@eslint/js'
-import tseslint from 'typescript-eslint'
 
-/** @type {import('eslint').Linter.Config[]} */
 export default [
-  { files: ['**/*.{js,mjs,cjs,ts}'] },
-  { languageOptions: { globals: globals.node } },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  { ignores: ['**/build/*', '**/node_modules/*', '**/public/*'] },
   {
-    parser: '@typescript-eslint/parser',
-    pluggin: ['@typescript-eslint'],
-    ignorePatterns: ['**/build/*', '**/node_modules/*', '**/public/*']
-  }
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+    },
+  },
+  ...tseslint.configs.recommendedTypeChecked,
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.json'],
+      },
+    },
+    rules: {},
+  },
 ]
-n

@@ -1,26 +1,29 @@
-// const express = require("express")
-import express, { Application, Request, Response, NextFunction } from 'express' // karena pakai typescript, bisa menggunakan import
+import cors from 'cors'
+import express, { Application, Request, Response, NextFunction } from 'express'
 import { routes } from './routes'
 import { logger } from './utils/logger'
-import bodyParser from 'body-parser'
-import cors from 'cors'
 
 const app: Application = express()
 const port = 4000
 
 // parse body request
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
 // cors access handler
 app.use(cors())
-app.use((req, res, next) => {
-    res.setHeader('Access-Allow-Control-Origin', '*')
-    res.setHeader('Access-Allow-Control-Methods', '*')
-    res.setHeader('Access-Allow-Control-Header', '*')
-    next()
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', '*')
+  res.setHeader('Access-Control-Allow-Headers', '*')
+  next()
 })
 
 routes(app)
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  logger.error(err.message)
+  res.status(500).json({ error: 'Internal Server Error' })
+})
 
 app.listen(port, () => logger.info(`Server is listening on port ${port}`))
