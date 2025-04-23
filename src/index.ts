@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express, { Application, NextFunction, Request, Response } from 'express'
 import { routes } from './routes'
-import { logger } from './utils/logger'
+import logger from './utils/logger'
 
 const app: Application = express()
 const port = 4000

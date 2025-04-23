@@ -2,7 +2,7 @@ import pino from 'pino'
 import pretty from 'pino-pretty'
 import moment from 'moment'
 
-export const logger = pino(
+const logger = pino(
   {
     base: {
       pid: false,
@@ -11,3 +11,5 @@ export const logger = pino(
   },
   pretty(),
 )
+
+export default logger
