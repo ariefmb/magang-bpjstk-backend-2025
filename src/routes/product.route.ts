@@ -18,3 +18,12 @@ ProductRouter.get("/", (req: Request, res: Response) => {
         data: dataProduct,
     });
 });
+
+ProductRouter.post('/', (req: Request, res: Response) => {
+    logger.info("Success add new product data")
+    res.status(200).send({
+        status: true,
+        statusCode: 200,
+        data: req.body
+    })
+})
