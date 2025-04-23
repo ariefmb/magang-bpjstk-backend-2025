@@ -1,5 +1,5 @@
 import cors from 'cors'
-import express, { Application, Request, Response, NextFunction } from 'express'
+import express, { Application, NextFunction, Request, Response } from 'express'
 import { routes } from './routes'
 import { logger } from './utils/logger'
 
@@ -21,9 +21,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 routes(app)
 
-app.use((err: Error, req: Request, res: Response) => {
-  logger.error(err.message)
-  res.status(500).json({ error: 'Internal Server Error' })
-})
-
-app.listen(port, () => logger.info(`Server is listening on port ${port}`))
+try {
+  app.listen(port, () => logger.info(`Server is listening on port ${port}`))
+} catch (error) {
+  logger.error(error)
+}
