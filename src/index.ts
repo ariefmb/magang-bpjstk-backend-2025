@@ -3,6 +3,9 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import { routes } from "./routes";
 import logger from "./utils/logger";
 
+// connecting to MongoDB
+import "./utils/connectDB";
+
 const app: Express = express();
 const port = 4000;
 

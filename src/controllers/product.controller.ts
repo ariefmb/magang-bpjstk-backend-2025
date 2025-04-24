@@ -1,52 +1,58 @@
 import { Request, Response } from "express";
+import { ProductInterface } from "../interfaces/product.interface";
+import { getProductRepo } from "../services/product.service";
 import logger from "../utils/logger";
 import { createProductValidation } from "../validations/product.validation";
 
 export const getProductsController = async (req: Request, res: Response) => {
-    const products = [
-        {
-            name: "Sepatu",
-            price: 500000,
-        },
-        {
-            name: "Kaos",
-            price: 300000,
-        },
-    ];
+    const products: any = await getProductRepo();
 
     const {
         params: { name },
     } = req;
 
-    if (name) {
-        const filteredProduct = products.filter((product) => {
-            if (product.name === name) {
-                return product;
+    if (products) {
+        if (name) {
+            const filteredProduct = products.filter(
+                (product: ProductInterface) => {
+                    if (product.name === name) {
+                        return product;
+                    }
+                }
+            );
+            if (filteredProduct.length === 0) {
+                logger.info("Product not found!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "Product not found!",
+                    data: {},
+                });
+            } else {
+                logger.info("Success get product");
+                res.status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "Success get product",
+                    data: filteredProduct[0],
+                });
             }
-        });
-        if (filteredProduct.length === 0) {
-            logger.info("Product not found!");
-            res.status(404).send({
-                status: false,
-                statusCode: 404,
-                message: "Product not found!",
-                data: {},
-            });
         } else {
-            logger.info("Success get product");
+            logger.info("Success get all products");
             res.status(200).send({
                 status: true,
                 statusCode: 200,
-                message: "Success get product",
-                data: filteredProduct[0],
+                message: "Success get all product",
+                data: products,
             });
         }
     } else {
-        logger.info("Success get all products");
-        res.status(200).send({
-            status: true,
-            statusCode: 200,
-            data: products,
+        logger.info("Cannot find product!");
+        res.status(500).send({
+            status: false,
+            statusCode: 500,
+            message: "Internal server error",
+            data: [],
         });
     }
 };
