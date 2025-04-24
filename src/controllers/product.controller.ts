@@ -24,13 +24,23 @@ export const getProductsController = async (req: Request, res: Response) => {
                 return product;
             }
         });
-        logger.info("Success get product");
-        res.status(200).send({
-            status: true,
-            statusCode: 200,
-            message: "Success get product",
-            data: filteredProduct,
-        });
+        if (filteredProduct.length === 0) {
+            logger.info("Product not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Product not found!",
+                data: {},
+            });
+        } else {
+            logger.info("Success get product");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get product",
+                data: filteredProduct[0],
+            });
+        }
     } else {
         logger.info("Success get all products");
         res.status(200).send({
