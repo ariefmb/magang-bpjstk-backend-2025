@@ -2,20 +2,43 @@ import { Request, Response } from "express";
 import logger from "../utils/logger";
 import { createProductValidation } from "../validations/product.validation";
 
-export const getAllProductsController = async (req: Request, res: Response) => {
-    const dataProduct = [
+export const getProductsController = async (req: Request, res: Response) => {
+    const products = [
         {
             name: "Sepatu",
             price: 500000,
         },
+        {
+            name: "Kaos",
+            price: 300000,
+        },
     ];
 
-    logger.info("Fetched product success");
-    res.status(200).send({
-        status: true,
-        statusCode: 200,
-        data: dataProduct,
-    });
+    const {
+        params: { name },
+    } = req;
+
+    if (name) {
+        const filteredProduct = products.filter((product) => {
+            if (product.name === name) {
+                return product;
+            }
+        });
+        logger.info("Success get product");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get product",
+            data: filteredProduct,
+        });
+    } else {
+        logger.info("Success get all products");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            data: products,
+        });
+    }
 };
 
 export const addProductController = async (req: Request, res: Response) => {
