@@ -23,15 +23,14 @@ export const addProductController = async (req: Request, res: Response) => {
             status: false,
             statusCode: 422,
             message: error.details[0].message,
-            data: {},
         });
     } else {
         try {
             await addProductRepo(value);
             logger.info("Success add new product data");
-            res.status(200).send({
+            res.status(201).send({
                 status: true,
-                statusCode: 200,
+                statusCode: 201,
                 message: "Add product success",
             });
         } catch (error) {

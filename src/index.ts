@@ -6,6 +6,8 @@ import logger from "./utils/logger";
 // connecting to MongoDB
 import "./utils/connectDB";
 
+import deserializeToken from "./middleware/deserializedToken";
+
 const app: Express = express();
 const port = 4000;
 
@@ -21,6 +23,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader("Access-Control-Allow-Headers", "*");
     next();
 });
+
+app.use(deserializeToken);
 
 app.use("/", routes);
 
