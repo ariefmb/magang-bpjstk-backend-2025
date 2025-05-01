@@ -6,7 +6,8 @@
         "start": "npx tsc -w",
         "dev": "npx nodemon",
         "build": "tsc",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "test": "jest --detectOpenHandles"
     },
     "author": "ariefmb",
     "license": "ISC",

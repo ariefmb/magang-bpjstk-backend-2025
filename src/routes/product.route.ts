@@ -5,12 +5,14 @@ import {
     getProductsController,
     updateProductByIdController,
 } from "../controllers/product.controller";
-import { requireAdmin, requireUser } from "../middleware/auth";
+import { requireAdmin } from "../middleware/auth";
 
 export const ProductRouter: Router = Router();
 
 ProductRouter.post("/", requireAdmin, addProductController);
-ProductRouter.get("/", requireUser, getProductsController);
-ProductRouter.get("/:product_id", requireUser, getProductsController);
+ProductRouter.get("/", getProductsController);
+ProductRouter.get("/:product_id", getProductsController);
+// ProductRouter.get("/", requireUser, getProductsController);
+// ProductRouter.get("/:product_id", requireUser, getProductsController);
 ProductRouter.put("/:product_id", requireAdmin, updateProductByIdController);
 ProductRouter.delete("/:product_id", requireAdmin, deleteProductByIdController);
