@@ -1,5 +1,8 @@
 import Joi from "joi";
-import { UserInterface, UserSessionInterface } from "src/interfaces/user.interface";
+import {
+    UserInterface,
+    UserSessionInterface,
+} from "src/interfaces/user.interface";
 
 export const createUserValidation = (payload: UserInterface) => {
     const schema = Joi.object({
@@ -13,10 +16,18 @@ export const createUserValidation = (payload: UserInterface) => {
     return schema.validate(payload);
 };
 
-export const createSessionValidation = (payload: UserSessionInterface) => {
+export const createSessionValidation = (payload: UserInterface) => {
     const schema = Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().required(),
+    });
+
+    return schema.validate(payload);
+};
+
+export const refreshSessionValidation = (payload: UserInterface) => {
+    const schema = Joi.object({
+        refreshToken: Joi.string().required(),
     });
 
     return schema.validate(payload);

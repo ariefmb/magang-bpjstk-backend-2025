@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { createUserRepo, findUserByEmail } from "../services/auth.service";
 import { checkPassword, hashing } from "../utils/hashing";
-import { signJWT } from "../utils/jwt";
+import { signJWT, verifyJWT } from "../utils/jwt";
 import logger from "../utils/logger";
 import {
     createSessionValidation,
     createUserValidation,
+    refreshSessionValidation,
 } from "../validations/auth.validation";
 
 export const registerUserController = async (req: Request, res: Response) => {
@@ -56,11 +57,9 @@ export const createSessionController = async (req: Request, res: Response) => {
     } else {
         try {
             const user = await findUserByEmail(value.email);
-            console.log(user);
 
             if (user) {
                 const isValid = checkPassword(value.password, user.password);
-                console.log(isValid);
 
                 if (!isValid) {
                     logger.info("Invalid email or password");
@@ -74,12 +73,23 @@ export const createSessionController = async (req: Request, res: Response) => {
                         { ...user },
                         { expiresIn: "1d" }
                     );
+
+                    const refreshToken = signJWT(
+                        { ...user },
+                        { expiresIn: "1y" }
+                    );
+
                     logger.info("Login success");
                     res.status(200).send({
                         status: true,
                         statusCode: 200,
                         message: "Login success",
-                        data: { accessToken },
+                        data: {
+                            name: user.name,
+                            role: user.role,
+                            accessToken,
+                            refreshToken,
+                        },
                     });
                 }
             } else {
@@ -92,6 +102,51 @@ export const createSessionController = async (req: Request, res: Response) => {
             }
         } catch (error) {
             logger.error(`ERR: auth - create session = ${error}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error,
+            });
+        }
+    }
+};
+
+export const refreshSessionController = async (req: Request, res: Response) => {
+    const { error, value } = refreshSessionValidation(req.body);
+
+    if (error) {
+        logger.error(
+            `ERR: auth - refresh session = ${error.details[0].message}`
+        );
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        try {
+            const { decoded } = verifyJWT(value.refreshToken);
+
+            const user = await findUserByEmail(decoded._doc.email);
+            if (!user) {
+                logger.info("User not registered!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "User not registered!",
+                });
+            } else {
+                const accessToken = signJWT({ ...user }, { expiresIn: "1d" });
+                logger.info("Refresh token success");
+                res.status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "Refresh token success",
+                    data: { name: user.name, role: user.role, accessToken },
+                });
+            }
+        } catch (error) {
+            logger.error(`ERR: auth - refresh session = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
