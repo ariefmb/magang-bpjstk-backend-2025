@@ -20,4 +20,4 @@ export const updateProductValidation = (payload: ProductInterface) => {
     });
 
     return schema.validate(payload);
-}
+};

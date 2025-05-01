@@ -32,3 +32,14 @@ export const refreshSessionValidation = (payload: UserInterface) => {
 
     return schema.validate(payload);
 };
+
+export const updateUserValidation = (payload: UserInterface) => {
+    const schema = Joi.object({
+        email: Joi.string().email().allow("", null),
+        name: Joi.string().allow("", null),
+        password: Joi.string().allow("", null),
+        role: Joi.string().allow("", null),
+    });
+
+    return schema.validate(payload);
+};

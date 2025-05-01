@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { createUserRepo, findUserByEmail } from "../services/auth.service";
+import {
+    createUserRepo,
+    findUserByEmail,
+    findUserById,
+    findUserRepo,
+    updateUserByIdRepo,
+} from "../services/auth.service";
 import { checkPassword, hashing } from "../utils/hashing";
 import { signJWT, verifyJWT } from "../utils/jwt";
 import logger from "../utils/logger";
@@ -8,6 +14,7 @@ import {
     createSessionValidation,
     createUserValidation,
     refreshSessionValidation,
+    updateUserValidation,
 } from "../validations/auth.validation";
 
 export const registerUserController = async (req: Request, res: Response) => {
@@ -147,6 +154,97 @@ export const refreshSessionController = async (req: Request, res: Response) => {
             }
         } catch (error) {
             logger.error(`ERR: auth - refresh session = ${error}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error,
+            });
+        }
+    }
+};
+
+export const getAllUsersController = async (req: Request, res: Response) => {
+    const {
+        params: { user_id },
+    } = req;
+
+    if (user_id) {
+        const user = await findUserById(user_id);
+
+        if (user) {
+            logger.info("Success find user");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success find user",
+                data: user,
+            });
+        } else {
+            logger.info("User not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "User not found!",
+                data: {},
+            });
+        }
+    } else {
+        const users = await findUserRepo();
+
+        if (users) {
+            logger.info("Success get all users");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get all users",
+                data: users,
+            });
+        } else {
+            logger.info("Internal server error!");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+        }
+    }
+};
+
+export const updateUserController = async (req: Request, res: Response) => {
+    const {
+        params: { user_id },
+    } = req;
+    const { error, value } = updateUserValidation(req.body);
+
+    if (error) {
+        logger.error(`ERR: user - update = ${error.details[0].message}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        try {
+            const updateUser = await updateUserByIdRepo(user_id, value);
+
+            if (updateUser) {
+                logger.info("Success update user data");
+                res.status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "Success update user data",
+                });
+            } else {
+                logger.info("User not found!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "User not found!",
+                });
+            }
+        } catch (error) {
+            logger.error(`ERR: user - update = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,

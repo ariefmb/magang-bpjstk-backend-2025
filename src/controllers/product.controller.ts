@@ -75,11 +75,11 @@ export const getProductsController = async (req: Request, res: Response) => {
             res.status(200).send({
                 status: true,
                 statusCode: 200,
-                message: "Success get all product",
+                message: "Success get all products",
                 data: products,
             });
         } else {
-            logger.info("Cannot find product!");
+            logger.info("Internal server error");
             res.status(500).send({
                 status: false,
                 statusCode: 500,
@@ -125,7 +125,7 @@ export const updateProductByIdController = async (
                 });
             }
         } catch (error) {
-            logger.error(`ERR: product - create = ${error}`);
+            logger.error(`ERR: product - update = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
