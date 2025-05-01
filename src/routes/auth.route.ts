@@ -15,4 +15,4 @@ AuthRouter.post("/login", createSessionController);
 AuthRouter.post("/refresh", refreshSessionController);
 AuthRouter.get("/", requireAdmin, getAllUsersController);
 AuthRouter.get("/:user_id", requireAdmin, getAllUsersController);
-AuthRouter.put("/:user_id", updateUserController);
+AuthRouter.put("/:user_id", requireAdmin, updateUserController);
