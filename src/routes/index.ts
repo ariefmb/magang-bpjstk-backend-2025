@@ -6,7 +6,7 @@ import { AuthRouter } from "./auth.route";
 export const routes: Router = Router();
 
 const _routes: Array<[string, Router]> = [
-    ["/health", HealthRouter],
+    ["/", HealthRouter],
     ["/product", ProductRouter],
     ["/auth", AuthRouter],
 ];

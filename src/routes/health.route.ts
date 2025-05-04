@@ -8,6 +8,6 @@ HealthRouter.get("/", (req: Request, res: Response) => {
     res.status(200).send({
         status: true,
         statusCode: 200,
-        data: "Hello World",
+        message: "Hello World",
     });
 });

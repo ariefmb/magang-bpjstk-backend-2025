@@ -36,12 +36,12 @@ const createUserAdmin = {
     role: "admin",
 };
 
-const createUserReguler = {
+const createUserMentee = {
     user_id: uuidv4(),
     email: "ariefbudiman@gmail.com",
     name: "arief",
     password: `${hashing("pw123")}`,
-    role: "regular",
+    role: "mentee",
 };
 
 const userAdmin = {
@@ -49,7 +49,7 @@ const userAdmin = {
     password: "pw123",
 };
 
-const userReguler = {
+const userMentee = {
     email: "ariefbudiman@gmail.com",
     password: "pw123",
 };
@@ -60,7 +60,7 @@ describe("product", () => {
         await mongoose.connect(mongoServer.getUri());
         await addProductRepo(productPayload);
         await createUserRepo(createUserAdmin);
-        await createUserRepo(createUserReguler);
+        await createUserRepo(createUserMentee);
     });
 
     afterAll(async () => {
@@ -104,11 +104,11 @@ describe("product", () => {
             });
         });
 
-        describe("if user is login as reguler", () => {
+        describe("if user is login as mentee", () => {
             it("should return 403, request forbidden", async () => {
                 const { body } = await supertest(app)
                     .post("/auth/login")
-                    .send(userReguler);
+                    .send(userMentee);
                 const accessToken = body.data.accessToken;
                 const { statusCode } = await supertest(app)
                     .post("/product")
@@ -190,11 +190,11 @@ describe("product", () => {
             });
         });
 
-        describe("if user is login as reguler", () => {
+        describe("if user is login as mentee", () => {
             it("should return 403, request forbidden", async () => {
                 const { body } = await supertest(app)
                     .post("/auth/login")
-                    .send(userReguler);
+                    .send(userMentee);
                 const accessToken = body.data.accessToken;
                 const { statusCode } = await supertest(app)
                     .put(`/product/${productPayload.product_id}`)
@@ -239,11 +239,11 @@ describe("product", () => {
             });
         });
 
-        describe("if user is login as reguler", () => {
+        describe("if user is login as mentee", () => {
             it("should return 403, request forbidden", async () => {
                 const { body } = await supertest(app)
                     .post("/auth/login")
-                    .send(userReguler);
+                    .send(userMentee);
                 const accessToken = body.data.accessToken;
                 const { statusCode } = await supertest(app)
                     .delete(`/product/${productPayload.product_id}`)

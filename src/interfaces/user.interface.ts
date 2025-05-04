@@ -3,7 +3,7 @@ export interface UserInterface {
     email: string;
     name: string;
     password: string;
-    role: string | null | "";
+    role: string;
 }
 
 export interface UserSessionInterface {

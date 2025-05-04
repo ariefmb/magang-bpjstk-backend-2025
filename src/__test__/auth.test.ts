@@ -16,12 +16,12 @@ const userAdmin = {
     role: "admin",
 };
 
-const userReguler = {
+const userMentee = {
     user_id: uuidv4(),
     email: "ariefbudiman@gmail.com",
     name: "arief",
     password: `${hashing("pw123")}`,
-    role: "regular",
+    role: "mentee",
 };
 
 const createUserAdmin = {
@@ -31,7 +31,7 @@ const createUserAdmin = {
     role: "admin",
 };
 
-const createUserReguler = {
+const createUserMentee = {
     email: "arief@gmail.com",
     name: "arief",
     password: "pw123",
@@ -52,7 +52,7 @@ describe("product", () => {
         const mongoServer = await MongoMemoryServer.create();
         await mongoose.connect(mongoServer.getUri());
         await createUserRepo(userAdmin);
-        await createUserRepo(userReguler);
+        await createUserRepo(userMentee);
     });
 
     afterAll(async () => {
@@ -70,11 +70,11 @@ describe("product", () => {
             });
         });
 
-        describe("create user with role reguler", () => {
-            it("should return 201, success create user reguler", async () => {
+        describe("create user with role mentee", () => {
+            it("should return 201, success create user mentee", async () => {
                 await supertest(app)
                     .post("/auth/register")
-                    .send(createUserReguler)
+                    .send(createUserMentee)
                     .expect(201);
             });
         });
