@@ -23,3 +23,7 @@ export const updateUserByIdRepo = async (
 ) => {
     return await userModel.findOneAndUpdate({ user_id: id }, { $set: payload });
 };
+
+export const deleteUserByIdRepo = async (id: string) => {
+    return await userModel.findOneAndDelete({ user_id: id });
+};

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import {
     createUserRepo,
+    deleteUserByIdRepo,
     findUserByEmail,
     findUserById,
     findUserRepo,
@@ -92,8 +93,7 @@ export const createSessionController = async (req: Request, res: Response) => {
                         statusCode: 200,
                         message: "Login success",
                         data: {
-                            name: user.name,
-                            role: user.role,
+                            user,
                             accessToken,
                             refreshToken,
                         },
@@ -251,5 +251,38 @@ export const updateUserController = async (req: Request, res: Response) => {
                 message: error,
             });
         }
+    }
+};
+
+export const deleteUserController = async (req: Request, res: Response) => {
+    const {
+        params: { user_id },
+    } = req;
+
+    try {
+        const deletedUser = await deleteUserByIdRepo(user_id);
+
+        if (deletedUser) {
+            logger.info("Success delete user");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success delete user",
+            });
+        } else {
+            logger.info("User not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "User not found!",
+            });
+        }
+    } catch (error) {
+        logger.error(`ERR: user - delete = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
