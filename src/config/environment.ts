@@ -3,8 +3,11 @@ import logger from "../utils/logger";
 
 const CONFIG = {
     db: process.env.MONGO_DB_URI,
-    jwt_private_key: process.env.JWT_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-    jwt_public_key: process.env.JWT_PUBLIC_KEY!.replace(/\\n/g, '\n'),
+    jwt_private_key: process.env.JWT_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+    jwt_public_key: process.env.JWT_PUBLIC_KEY!.replace(/\\n/g, "\n"),
+    mail_host: process.env.MAIL_HOST,
+    mail_user: process.env.MAIL_USER,
+    mail_pass: process.env.MAIL_PASS,
 };
 
 if (!CONFIG.db) {
@@ -17,6 +20,12 @@ if (!CONFIG.jwt_private_key) {
 }
 if (!CONFIG.jwt_public_key) {
     logger.error("Missing environment variable: JWT_PUBLIC_KEY");
+    process.exit(1);
+}
+if (!CONFIG.mail_user || !CONFIG.mail_pass || !CONFIG.mail_host) {
+    logger.error(
+        "Missing environment variables: MAIL_HOST, MAIL_USER, or MAIL_PASS"
+    );
     process.exit(1);
 }
 
