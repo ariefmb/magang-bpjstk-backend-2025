@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { UserInterface } from "src/interfaces/user.interface";
+import { UserInterface } from "../interfaces/user.interface";
 
 export const createUserValidation = (payload: UserInterface) => {
     const schema = Joi.object({

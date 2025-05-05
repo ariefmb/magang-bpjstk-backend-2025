@@ -1,3 +1,4 @@
+import { hashing } from "../utils/hashing";
 import { UserInterface } from "../interfaces/user.interface";
 import userModel from "../models/user.model";
 
@@ -21,6 +22,11 @@ export const updateUserByIdRepo = async (
     id: string,
     payload: UserInterface
 ) => {
+    // const updatedPayload = { ...payload };
+    
+    // if (updatedPayload.password) {
+    //     updatedPayload.password = hashing(updatedPayload.password);
+    // }
     return await userModel.findOneAndUpdate({ user_id: id }, { $set: payload });
 };
 

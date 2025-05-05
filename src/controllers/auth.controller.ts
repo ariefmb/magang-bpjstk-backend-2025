@@ -226,6 +226,9 @@ export const updateUserController = async (req: Request, res: Response) => {
         });
     } else {
         try {
+            if (value.password) {
+                value.password = hashing(value.password);
+            }
             const updateUser = await updateUserByIdRepo(user_id, value);
 
             if (updateUser) {
