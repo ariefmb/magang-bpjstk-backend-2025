@@ -22,11 +22,6 @@ export const updateUserByIdRepo = async (
     id: string,
     payload: UserInterface
 ) => {
-    // const updatedPayload = { ...payload };
-    
-    // if (updatedPayload.password) {
-    //     updatedPayload.password = hashing(updatedPayload.password);
-    // }
     return await userModel.findOneAndUpdate({ user_id: id }, { $set: payload });
 };
 
