@@ -1,63 +1,131 @@
 import { Request, Response } from "express";
-import { otpGenerator } from "src/utils/otpGenerator";
-import { sendOTPValidation } from "src/validations/otp.validation";
 import { v4 as uuidv4 } from "uuid";
-import { findUserByEmail } from "../services/auth.service";
-import { createOTPRepo } from "../services/otp.service";
+import {
+    createOTPRepo,
+    deleteOTPRepo,
+    findMatchOTP,
+} from "../services/otp.service";
+import { hashing, verifyHashedData } from "../utils/hashing";
 import logger from "../utils/logger";
+import { sendVerificationEmail } from "../utils/mailSender";
+import { otpGenerator } from "../utils/otpGenerator";
+import {
+    sendOTPValidation,
+    verifyOTPValidation,
+} from "../validations/otp.validation";
 
-export const sendOTPController = async (req: Request, res: Response) => {
-    try {
+export const verifyOTPController = async (req: Request, res: Response) => {
+    const { error, value } = verifyOTPValidation(req.body);
+
+    if (error) {
+        logger.error(`ERR: OTP - verify = ${error.details[0].message}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
         const { email } = req.body;
-        const checkUser = await findUserByEmail(email);
+        const matchedOTPRecord = await findMatchOTP(email);
 
-        if (checkUser) {
-            logger.info("Email already registered");
-            res.status(401).send({
+        if (!matchedOTPRecord) {
+            logger.error(`ERR: OTP - verify = OTP has expired`);
+            res.status(404).send({
                 status: false,
-                statusCode: 401,
-                message: "Email already registered",
+                statusCode: 404,
+                message: "OTP has expired",
             });
         } else {
-            req.body.otp_id = uuidv4();
-            const otp = await otpGenerator();
-            const otpPayload = { ...req.body, otp };
+            try {
+                const isValid = verifyHashedData(
+                    value.otp,
+                    matchedOTPRecord.otp
+                );
 
-            const { error, value } = await sendOTPValidation(otpPayload);
-
-            if (error) {
-                logger.error(`ERR: OTP - send = ${error.details[0].message}`);
-                res.status(422).send({
-                    status: false,
-                    statusCode: 422,
-                    message: error.details[0].message,
-                });
-            } else {
-                try {
-                    await createOTPRepo(value);
-                    logger.info("OTP sent successfully");
+                if (!isValid) {
+                    logger.info(`ERR: OTP - verify = Invalid OTP`);
+                    res.status(401).send({
+                        status: false,
+                        statusCode: 401,
+                        message: "Invalid OTP",
+                    });
+                } else {
+                    logger.info("Success verify OTP");
                     res.status(200).send({
                         status: true,
                         statusCode: 200,
-                        message: "OTP sent successfully",
-                        otp: value.otp,
+                        message: "Success verify OTP",
                     });
-                } catch (error) {
-                    logger.error(`ERR: OTP - send = ${error}`);
-                    res.status(422).send({
-                        status: false,
-                        statusCode: 422,
-                        message: error,
-                    });
+                    await deleteOTPController(value.email);
                 }
+            } catch (error) {
+                logger.error(`ERR: OTP - verify = ${error}`);
+                res.status(422).send({
+                    status: false,
+                    statusCode: 422,
+                    message: error,
+                });
             }
         }
-    } catch (error: any) {
-        logger.error(error.message);
-        res.status(500).send({
+    }
+};
+
+export const sendOTPController = async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const checkUser = await findMatchOTP(email);
+
+    if (checkUser) {
+        logger.info("Email already registered");
+        res.status(401).send({
             status: false,
-            statusCode: 500,
-            message: error.message,
+            statusCode: 401,
+            message: "Email already registered",
         });
+    } else {
+        req.body.otp_id = uuidv4();
+        const otp = await otpGenerator();
+        const otpPayload = { ...req.body, otp };
+
+        const { error, value } = sendOTPValidation(otpPayload);
+
+        if (error) {
+            logger.error(`ERR: OTP - send = ${error.details[0].message}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error.details[0].message,
+            });
+        } else {
+            try {
+                await sendVerificationEmail(value.email, value.otp);
+
+                value.otp = hashing(value.otp);
+                await createOTPRepo(value);
+
+                logger.info("OTP sent successfully");
+                res.status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "OTP sent successfully",
+                    data: value,
+                });
+            } catch (error) {
+                logger.error(`ERR: OTP - send = ${error}`);
+                res.status(422).send({
+                    status: false,
+                    statusCode: 422,
+                    message: error,
+                });
+            }
+        }
+    }
+};
+
+export const deleteOTPController = async (email: string) => {
+    try {
+        await deleteOTPRepo(email);
+        logger.info("Success delete OTP");
+    } catch (error) {
+        logger.error(`ERR: OTP - delete = ${error}`);
     }
 };

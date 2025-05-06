@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { sendOTPController } from "../controllers/otp.controller";
+import { sendOTPController, verifyOTPController } from "../controllers/otp.controller";
 
 export const OTPRouter: Router = Router()
 
 OTPRouter.post("/", sendOTPController)
+OTPRouter.post("/verify", verifyOTPController)

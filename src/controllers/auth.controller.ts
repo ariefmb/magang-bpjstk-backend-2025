@@ -8,7 +8,7 @@ import {
     findUserRepo,
     updateUserByIdRepo,
 } from "../services/auth.service";
-import { checkPassword, hashing } from "../utils/hashing";
+import { hashing, verifyHashedData } from "../utils/hashing";
 import { signJWT, verifyJWT } from "../utils/jwt";
 import logger from "../utils/logger";
 import {
@@ -67,7 +67,7 @@ export const createSessionController = async (req: Request, res: Response) => {
             const user = await findUserByEmail(value.email);
 
             if (user) {
-                const isValid = checkPassword(value.password, user.password);
+                const isValid = verifyHashedData(value.password, user.password);
 
                 if (!isValid) {
                     logger.info("Invalid email or password");

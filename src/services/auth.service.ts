@@ -1,4 +1,3 @@
-import { hashing } from "../utils/hashing";
 import { UserInterface } from "../interfaces/user.interface";
 import userModel from "../models/user.model";
 
