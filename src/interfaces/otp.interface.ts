@@ -4,3 +4,9 @@ export interface OTPInterface {
     otp: string;
     createdAt: Date;
 }
+
+export interface EmailDetailsInterface {
+    email: string;
+    subject: string;
+    body: string;
+}

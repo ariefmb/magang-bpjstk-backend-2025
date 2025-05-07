@@ -1,18 +1,32 @@
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
-import {
-    createOTPRepo,
-    deleteOTPRepo,
-    findMatchOTP,
-} from "../services/otp.service";
-import { hashing, verifyHashedData } from "../utils/hashing";
+import { updateUserByEmailRepo } from "../services/auth.service";
+import { deleteOTPRepo, findMatchOTP } from "../services/otp.service";
+import { verifyHashedData } from "../utils/hashing";
 import logger from "../utils/logger";
-import { sendVerificationEmail } from "../utils/mailSender";
-import { otpGenerator } from "../utils/otpGenerator";
-import {
-    sendOTPValidation,
-    verifyOTPValidation,
-} from "../validations/otp.validation";
+import { verifyOTPValidation } from "../validations/otp.validation";
+import { sendEmailVerificationService } from "../services/mailSender.service";
+
+export const sendOTPController = async (req: Request, res: Response) => {
+    try {
+        const { email, createdAt } = req.body;
+        const result = await sendEmailVerificationService(email, createdAt);
+
+        logger.info("OTP sent successfully");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "OTP sent successfully",
+            data: result,
+        });
+    } catch (error) {
+        logger.error(`ERR: OTP - send = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
 
 export const verifyOTPController = async (req: Request, res: Response) => {
     const { error, value } = verifyOTPValidation(req.body);
@@ -50,67 +64,30 @@ export const verifyOTPController = async (req: Request, res: Response) => {
                         message: "Invalid OTP",
                     });
                 } else {
-                    logger.info("Success verify OTP");
-                    res.status(200).send({
-                        status: true,
-                        statusCode: 200,
-                        message: "Success verify OTP",
-                    });
-                    await deleteOTPController(value.email);
+                    const updateVerified = await updateUserByEmailRepo(
+                        value.email
+                    );
+
+                    if (!updateVerified) {
+                        logger.error(`ERR: OTP - verify = User not found`);
+                        res.status(404).send({
+                            status: false,
+                            statusCode: 404,
+                            message: "User not found",
+                        });
+                    } else {
+                        await deleteOTPController(value.email);
+                        
+                        logger.info("Success verify OTP");
+                        res.status(200).send({
+                            status: true,
+                            statusCode: 200,
+                            message: "Success verify OTP",
+                        });
+                    }
                 }
             } catch (error) {
                 logger.error(`ERR: OTP - verify = ${error}`);
-                res.status(422).send({
-                    status: false,
-                    statusCode: 422,
-                    message: error,
-                });
-            }
-        }
-    }
-};
-
-export const sendOTPController = async (req: Request, res: Response) => {
-    const { email } = req.body;
-    const checkUser = await findMatchOTP(email);
-
-    if (checkUser) {
-        logger.info("Email already registered");
-        res.status(401).send({
-            status: false,
-            statusCode: 401,
-            message: "Email already registered",
-        });
-    } else {
-        req.body.otp_id = uuidv4();
-        const otp = await otpGenerator();
-        const otpPayload = { ...req.body, otp };
-
-        const { error, value } = sendOTPValidation(otpPayload);
-
-        if (error) {
-            logger.error(`ERR: OTP - send = ${error.details[0].message}`);
-            res.status(422).send({
-                status: false,
-                statusCode: 422,
-                message: error.details[0].message,
-            });
-        } else {
-            try {
-                await sendVerificationEmail(value.email, value.otp);
-
-                value.otp = hashing(value.otp);
-                await createOTPRepo(value);
-
-                logger.info("OTP sent successfully");
-                res.status(200).send({
-                    status: true,
-                    statusCode: 200,
-                    message: "OTP sent successfully",
-                    data: value,
-                });
-            } catch (error) {
-                logger.error(`ERR: OTP - send = ${error}`);
                 res.status(422).send({
                     status: false,
                     statusCode: 422,

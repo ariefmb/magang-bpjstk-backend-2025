@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { EmailDetailsInterface } from "../interfaces/otp.interface";
 import CONFIG from "../config/environment";
 import logger from "./logger";
 
@@ -23,16 +24,12 @@ const mailSender = async (email: string, title: string, body: string) => {
     }
 };
 
-export const sendVerificationEmail = async (email: string, otp: string) => {
+export const sendEmailVerification = async (
+    emailDetails: EmailDetailsInterface
+) => {
     try {
-        await mailSender(
-            email,
-            "Verification Email",
-            `<h2>Please confirm your OTP</h2>
-            <p>Here is your OTP code: <span style="color:tomato; font-size:25px; letter-spacing:2px;"><b>${otp}</b></span></p>
-            <p>This code <b>expires in 5 minutes</b>. Please confirm your OTP on this link below.</p>
-            <a href="https://mail.google.com">Verify your OTP</a>`
-        );
+        const { email, subject, body } = emailDetails;
+        await mailSender(email, subject, body);
 
         logger.info(`Email sent successfully`);
     } catch (error) {

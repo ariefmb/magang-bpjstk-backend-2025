@@ -18,8 +18,9 @@ const userSchema = new mongoose.Schema<UserInterface>(
             required: true,
             enum: ["super admin", "admin", "mentor", "mentee"],
             default: "mentee",
-            lowercase: true,    
+            lowercase: true,
         },
+        verified: { type: Boolean, default: false },
     },
     { timestamps: true }
 );

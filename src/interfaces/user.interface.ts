@@ -4,9 +4,16 @@ export interface UserInterface {
     name: string;
     password: string;
     role: string;
+    verified: boolean;
 }
 
 export interface UserSessionInterface {
     email: string;
     password: string;
+}
+
+export interface resetPasswordInterface {
+    email: string;
+    password: string;
+    otp: string;
 }

@@ -6,7 +6,7 @@ export const sendOTPValidation = (payload: OTPInterface) => {
         otp_id: Joi.string().required(),
         email: Joi.string().email().lowercase().trim().required(),
         otp: Joi.string().required(),
-        createdAt: Joi.date().default(Date.now),
+        createdAt: Joi.date().default(() => new Date()),
     });
 
     return schema.validate(payload);

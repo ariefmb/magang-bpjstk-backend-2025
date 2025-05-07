@@ -6,8 +6,14 @@ import {
     findUserByEmail,
     findUserById,
     findUserRepo,
+    resetPasswordRepo,
     updateUserByIdRepo,
 } from "../services/auth.service";
+import {
+    sendEmailForgotPasswordService,
+    sendEmailVerificationService,
+} from "../services/mailSender.service";
+import { findMatchOTP } from "../services/otp.service";
 import { hashing, verifyHashedData } from "../utils/hashing";
 import { signJWT, verifyJWT } from "../utils/jwt";
 import logger from "../utils/logger";
@@ -15,8 +21,11 @@ import {
     createSessionValidation,
     createUserValidation,
     refreshSessionValidation,
+    requestForgotPasswordValidation,
+    resetPasswordValidation,
     updateUserValidation,
 } from "../validations/auth.validation";
+import { deleteOTPController } from "./otp.controller";
 
 export const registerUserController = async (req: Request, res: Response) => {
     req.body.user_id = uuidv4();
@@ -33,11 +42,16 @@ export const registerUserController = async (req: Request, res: Response) => {
         try {
             value.password = hashing(value.password);
             await createUserRepo(value);
-            logger.info("Success register new user");
+            await sendEmailVerificationService(value.email);
+
+            logger.info(
+                "Success register new user and send verification email"
+            );
             res.status(201).send({
                 status: true,
                 statusCode: 201,
-                message: "Success register new user",
+                message:
+                    "Success register new user and send verification email",
             });
         } catch (error) {
             logger.error(`ERR: auth - create = ${error}`);
@@ -67,37 +81,49 @@ export const createSessionController = async (req: Request, res: Response) => {
             const user = await findUserByEmail(value.email);
 
             if (user) {
-                const isValid = verifyHashedData(value.password, user.password);
-
-                if (!isValid) {
-                    logger.info("Invalid email or password");
+                if (!user.verified) {
+                    logger.info("User not verified yet, check your inbox!");
                     res.status(401).send({
                         status: false,
                         statusCode: 401,
-                        message: "Invalid email or password",
+                        message: "User not verified yet, check your inbox!",
                     });
                 } else {
-                    const accessToken = signJWT(
-                        { ...user },
-                        { expiresIn: "1d" }
+                    const isValid = verifyHashedData(
+                        value.password,
+                        user.password
                     );
 
-                    const refreshToken = signJWT(
-                        { ...user },
-                        { expiresIn: "1y" }
-                    );
+                    if (!isValid) {
+                        logger.info("Invalid email or password");
+                        res.status(401).send({
+                            status: false,
+                            statusCode: 401,
+                            message: "Invalid email or password",
+                        });
+                    } else {
+                        const accessToken = signJWT(
+                            { ...user },
+                            { expiresIn: "1d" }
+                        );
 
-                    logger.info("Login success");
-                    res.status(200).send({
-                        status: true,
-                        statusCode: 200,
-                        message: "Login success",
-                        data: {
-                            user,
-                            accessToken,
-                            refreshToken,
-                        },
-                    });
+                        const refreshToken = signJWT(
+                            { ...user },
+                            { expiresIn: "1y" }
+                        );
+
+                        logger.info("Login success");
+                        res.status(200).send({
+                            status: true,
+                            statusCode: 200,
+                            message: "Login success",
+                            data: {
+                                user,
+                                accessToken,
+                                refreshToken,
+                            },
+                        });
+                    }
                 }
             } else {
                 logger.info("User not registered!");
@@ -159,6 +185,126 @@ export const refreshSessionController = async (req: Request, res: Response) => {
                 statusCode: 422,
                 message: error,
             });
+        }
+    }
+};
+
+export const forgotPasswordController = async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    const { error, value } = requestForgotPasswordValidation(email);
+
+    if (error) {
+        logger.error(
+            `ERR: auth - forgot password = ${error.details[0].message}`
+        );
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        const user = await findUserByEmail(value.email);
+
+        if (!user) {
+            logger.info("User not registered!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "User not registered!",
+            });
+        } else {
+            try {
+                await sendEmailForgotPasswordService(user.email);
+                logger.info("Success send email to reset password");
+                res.status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "Success send email to reset password",
+                });
+            } catch (error) {
+                logger.error(`ERR: auth - forgot password = ${error}`);
+                res.status(422).send({
+                    status: false,
+                    statusCode: 422,
+                    message: error,
+                });
+            }
+        }
+    }
+};
+
+export const resetPasswordController = async (req: Request, res: Response) => {
+    const { error, value } = resetPasswordValidation(req.body);
+
+    if (error) {
+        logger.error(
+            `ERR: auth - reset password = ${error.details[0].message}`
+        );
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        const matchedOTPRecord = await findMatchOTP(value.email);
+
+        if (!matchedOTPRecord) {
+            logger.error(`ERR: auth - reset password = OTP has expired`);
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "OTP has expired",
+            });
+        } else {
+            try {
+                const isValid = verifyHashedData(
+                    value.otp,
+                    matchedOTPRecord.otp
+                );
+
+                if (!isValid) {
+                    logger.info(`ERR: auth - reset password = Invalid OTP`);
+                    res.status(401).send({
+                        status: false,
+                        statusCode: 401,
+                        message: "Invalid OTP",
+                    });
+                } else {
+                    value.password = hashing(value.password);
+                    const resetedPassword = await resetPasswordRepo(
+                        value.email,
+                        value.password
+                    );
+
+                    if (!resetedPassword) {
+                        logger.error(
+                            `ERR: auth - reset password = Password reset failed`
+                        );
+                        res.status(422).send({
+                            status: false,
+                            statusCode: 422,
+                            message: "Password reset failed",
+                        });
+                    } else {
+                        await deleteOTPController(value.email);
+
+                        logger.info("Success reset password");
+                        res.status(200).send({
+                            status: true,
+                            statusCode: 200,
+                            message: "Success reset password",
+                        });
+                    }
+                }
+            } catch (error) {
+                logger.error(`ERR: auth - reset password = ${error}`);
+                res.status(422).send({
+                    status: false,
+                    statusCode: 422,
+                    message: error,
+                });
+            }
         }
     }
 };

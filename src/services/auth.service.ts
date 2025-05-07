@@ -24,6 +24,20 @@ export const updateUserByIdRepo = async (
     return await userModel.findOneAndUpdate({ user_id: id }, { $set: payload });
 };
 
+export const updateUserByEmailRepo = async (email: string) => {
+    return await userModel.findOneAndUpdate(
+        { email: email },
+        { verified: true }
+    );
+};
+
+export const resetPasswordRepo = async (email: string, password: string) => {
+    return await userModel.findOneAndUpdate(
+        { email: email },
+        { password: password }
+    );
+};
+
 export const deleteUserByIdRepo = async (id: string) => {
     return await userModel.findOneAndDelete({ user_id: id });
 };
