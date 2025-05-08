@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema<UserInterface>(
             default: "mentee",
             lowercase: true,
         },
-        verified: { type: Boolean, default: false },
+        verified: { type: Boolean, required: true, default: false },
     },
     { timestamps: true }
 );
