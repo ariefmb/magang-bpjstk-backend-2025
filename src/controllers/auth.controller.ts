@@ -64,13 +64,11 @@ export const registerUserController = async (req: Request, res: Response) => {
     }
 };
 
-export const createSessionController = async (req: Request, res: Response) => {
+export const loginController = async (req: Request, res: Response) => {
     const { error, value } = createSessionValidation(req.body);
 
     if (error) {
-        logger.error(
-            `ERR: auth - create session = ${error.details[0].message}`
-        );
+        logger.error(`ERR: auth - login = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -134,7 +132,7 @@ export const createSessionController = async (req: Request, res: Response) => {
                 });
             }
         } catch (error) {
-            logger.error(`ERR: auth - create session = ${error}`);
+            logger.error(`ERR: auth - login = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
@@ -159,8 +157,8 @@ export const refreshSessionController = async (req: Request, res: Response) => {
     } else {
         try {
             const { decoded } = verifyJWT(value.refreshToken);
-
             const user = await findUserByEmail(decoded._doc.email);
+
             if (!user) {
                 logger.info("User not registered!");
                 res.status(404).send({
@@ -170,13 +168,16 @@ export const refreshSessionController = async (req: Request, res: Response) => {
                 });
             } else {
                 const accessToken = signJWT({ ...user }, { expiresIn: "1d" });
+
                 logger.info("Refresh token success");
-                res.status(200).send({
-                    status: true,
-                    statusCode: 200,
-                    message: "Refresh token success",
-                    data: { name: user.name, role: user.role, accessToken },
-                });
+                res.cookie("token", accessToken, { signed: true })
+                    .status(200)
+                    .send({
+                        status: true,
+                        statusCode: 200,
+                        message: "Refresh token success",
+                        data: { user, accessToken },
+                    });
             }
         } catch (error) {
             logger.error(`ERR: auth - refresh session = ${error}`);
@@ -186,6 +187,27 @@ export const refreshSessionController = async (req: Request, res: Response) => {
                 message: error,
             });
         }
+    }
+};
+
+export const logoutController = async (req: Request, res: Response) => {
+    try {
+        res.cookie("token", { expires: new Date(0) });
+        res.clearCookie("token");
+
+        logger.info("Logout success");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Logout success",
+        });
+    } catch (error) {
+        logger.error(`ERR: auth - logout = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
 

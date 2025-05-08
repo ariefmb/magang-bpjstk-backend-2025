@@ -2,6 +2,8 @@ import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import deserializeToken from "../middleware/deserializedToken";
 import { routes } from "../routes";
+import cookieParser from "cookie-parser";
+import CONFIG from "../config/environment";
 
 const createServer = () => {
     const app: Express = express();
@@ -10,6 +12,9 @@ const createServer = () => {
     // parse body request
     app.use(express.urlencoded({ extended: false }));
     app.use(express.json());
+
+    // cookie parser
+    app.use(cookieParser(CONFIG.jwt_private_key))
 
     // cors access handler
     app.use(cors());

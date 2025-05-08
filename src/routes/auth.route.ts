@@ -1,9 +1,10 @@
 import { Router } from "express";
 import {
-    createSessionController,
     deleteUserController,
     forgotPasswordController,
     getAllUsersController,
+    loginController,
+    logoutController,
     refreshSessionController,
     registerUserController,
     resetPasswordController,
@@ -14,8 +15,9 @@ import { requireAdmin } from "../middleware/auth";
 export const AuthRouter: Router = Router();
 
 AuthRouter.post("/register", registerUserController);
-AuthRouter.post("/login", createSessionController);
+AuthRouter.post("/login", loginController);
 AuthRouter.post("/refresh", refreshSessionController);
+AuthRouter.post("/logout", logoutController);
 AuthRouter.post("/forgot_password", forgotPasswordController);
 AuthRouter.post("/forgot_password/reset", resetPasswordController);
 AuthRouter.get("/", requireAdmin, getAllUsersController);
