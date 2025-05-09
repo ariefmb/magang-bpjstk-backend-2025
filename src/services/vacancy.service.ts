@@ -22,7 +22,7 @@ export const getAndUpdateStatusVacancy = (openDate: Date, closeDate: Date) => {
     return "Pending";
 };
 
-export const updateStatusVacancy = async (id?: String) => {
+export const updateStatusVacancy = async (id?: string) => {
     let statusNow: String = "Pending";
 
     try {
@@ -58,4 +58,14 @@ export const updateStatusVacancy = async (id?: String) => {
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error));
     }
+};
+
+export const updateVacancyByIdRepo = async (
+    id: string,
+    payload: VacancyInterface
+) => {
+    return await vacancyModel.findOneAndUpdate(
+        { vacancy_id: id },
+        { $set: payload }
+    );
 };
