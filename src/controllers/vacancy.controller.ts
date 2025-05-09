@@ -1,15 +1,22 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import {
+    createVacancyRepo,
+    getAndUpdateStatusVacancy,
+    getVacanciesRepo,
+    getVacancyByIdRepo,
+    updateStatusVacancy,
+} from "../services/vacancy.service";
 import logger from "../utils/logger";
 import { createVacancyValidation } from "../validations/vacancy.validation";
-import { createVacancyRepo, getVacanciesRepo, getVacancyByIdRepo } from "../services/vacancy.service";
 
 export const createVacancyController = async (req: Request, res: Response) => {
     req.body.vacancy_id = uuidv4();
+
     const { error, value } = createVacancyValidation(req.body);
 
     if (error) {
-        logger.info(`ERR: vacancy - create = ${error.details[0].message}`);
+        logger.info(`tes ERR: vacancy - create = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -17,16 +24,25 @@ export const createVacancyController = async (req: Request, res: Response) => {
         });
     } else {
         try {
-            await createVacancyRepo(value)
-            logger.info('Success create new vacancy')
+            const closingDate = new Date(value.close_vacancy)
+            closingDate.setHours(23, 59, 59, 999)
+            value.close_vacancy = closingDate
+
+            value.status = getAndUpdateStatusVacancy(
+                value.open_vacancy,
+                value.close_vacancy
+            );
+
+            await createVacancyRepo(value);
+            logger.info("Success create new vacancy");
             res.status(201).send({
                 status: true,
                 statusCode: 201,
                 message: "Success create new vacancy",
-                data: value
-            })
+                data: value,
+            });
         } catch (error) {
-            logger.info(`ERR: vacancy - create = ${error}`);
+            logger.info(`ERRR: vacancy - create = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
@@ -41,9 +57,11 @@ export const getVacanciesController = async (req: Request, res: Response) => {
         params: { vacancy_id },
     } = req;
 
+    await updateStatusVacancy(vacancy_id)
+
     if (vacancy_id) {
         const vacancy = await getVacancyByIdRepo(vacancy_id);
-        
+
         if (vacancy) {
             logger.info("Success get vacancy data");
             res.status(200).send({
@@ -82,4 +100,3 @@ export const getVacanciesController = async (req: Request, res: Response) => {
         }
     }
 };
-

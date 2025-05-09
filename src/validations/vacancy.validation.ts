@@ -6,7 +6,7 @@ export const createVacancyValidation = (payload: VacancyInterface) => {
         vacancy_id: Joi.string().required(),
         name_vacancy: Joi.string().trim().required(),
         unit: Joi.string().trim().required(),
-        status: Joi.string().valid("Open", "open", "Closed", "closed", "Pending", "pending").required(),
+        status: Joi.string().valid("Open", "open", "Closed", "closed", "Pending", "pending"),
         mentor_name: Joi.string().trim().required(),
         contact: Joi.string().required(),
         position: Joi.string().trim().required(),
