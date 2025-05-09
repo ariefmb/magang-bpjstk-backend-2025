@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
     createVacancyController,
+    deleteVacancyController,
     getVacanciesController,
     updateVacancyController,
 } from "../controllers/vacancy.controller";
@@ -12,3 +13,4 @@ VacancyRouter.post("/", requireAdmin, createVacancyController);
 VacancyRouter.get("/", getVacanciesController);
 VacancyRouter.get("/:vacancy_id", getVacanciesController);
 VacancyRouter.put("/:vacancy_id", requireAdmin, updateVacancyController);
+VacancyRouter.delete("/:vacancy_id", requireAdmin, deleteVacancyController);

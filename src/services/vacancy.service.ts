@@ -69,3 +69,7 @@ export const updateVacancyByIdRepo = async (
         { $set: payload }
     );
 };
+
+export const deleteVacancyByIdRepo = async (id: string) => {
+    return await vacancyModel.findOneAndDelete({ vacancy_id: id });
+};

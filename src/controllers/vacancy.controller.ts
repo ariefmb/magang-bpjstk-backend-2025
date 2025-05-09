@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import {
     createVacancyRepo,
+    deleteVacancyByIdRepo,
     getAndUpdateStatusVacancy,
     getVacanciesRepo,
     getVacancyByIdRepo,
@@ -124,7 +125,7 @@ export const updateVacancyController = async (req: Request, res: Response) => {
                 const closingDate = new Date(value.close_vacancy);
                 closingDate.setHours(23, 59, 59, 999);
                 value.close_vacancy = closingDate;
-    
+
                 value.status = getAndUpdateStatusVacancy(
                     value.open_vacancy,
                     value.close_vacancy
@@ -156,5 +157,37 @@ export const updateVacancyController = async (req: Request, res: Response) => {
                 message: error,
             });
         }
+    }
+};
+
+export const deleteVacancyController = async (req: Request, res: Response) => {
+    const {
+        params: { vacancy_id },
+    } = req;
+
+    try {
+        const deletedData = await deleteVacancyByIdRepo(vacancy_id);
+        if (deletedData) {
+            logger.info("Success delete vacancy data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success delete vacancy data",
+            });
+        } else {
+            logger.info("Vacancy data not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Vacancy data not found!",
+            });
+        }
+    } catch (error) {
+        logger.error(`ERR: vacancy - delete = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
