@@ -41,3 +41,7 @@ export const resetPasswordRepo = async (email: string, password: string) => {
 export const deleteUserByIdRepo = async (id: string) => {
     return await userModel.findOneAndDelete({ user_id: id });
 };
+
+export const searchUserRepo = async (name: string) => {
+    return await userModel.find({ name: { $regex: name, $options: "i" } });
+};

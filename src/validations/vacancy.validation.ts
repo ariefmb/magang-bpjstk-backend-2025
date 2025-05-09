@@ -4,7 +4,7 @@ import { VacancyInterface } from "../interfaces/vacancy.interface";
 export const createVacancyValidation = (payload: VacancyInterface) => {
     const Schema = Joi.object({
         vacancy_id: Joi.string().required(),
-        name_vacancy: Joi.string().trim().required(),
+        title: Joi.string().trim().required(),
         unit: Joi.string().trim().required(),
         status: Joi.string().valid(
             "Open",
@@ -37,7 +37,7 @@ export const createVacancyValidation = (payload: VacancyInterface) => {
 
 export const updateVacancyValidation = (payload: VacancyInterface) => {
     const Schema = Joi.object({
-        name_vacancy: Joi.string().trim(),
+        title: Joi.string().trim(),
         unit: Joi.string().trim(),
         status: Joi.string().valid(
             "Open",

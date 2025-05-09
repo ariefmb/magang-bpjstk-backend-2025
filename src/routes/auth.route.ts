@@ -3,6 +3,7 @@ import {
     deleteUserController,
     forgotPasswordController,
     getAllUsersController,
+    getUserByIdController,
     loginController,
     logoutController,
     refreshSessionController,
@@ -21,6 +22,7 @@ AuthRouter.post("/logout", logoutController);
 AuthRouter.post("/forgot_password", forgotPasswordController);
 AuthRouter.post("/forgot_password/reset", resetPasswordController);
 AuthRouter.get("/", requireAdmin, getAllUsersController);
-AuthRouter.get("/:user_id", requireAdmin, getAllUsersController);
+AuthRouter.get("/search", requireAdmin, getAllUsersController);
+AuthRouter.get("/:user_id", requireAdmin, getUserByIdController);
 AuthRouter.put("/:user_id", requireAdmin, updateUserController);
 AuthRouter.delete("/:user_id", requireAdmin, deleteUserController);

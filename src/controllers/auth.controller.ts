@@ -7,6 +7,7 @@ import {
     findUserById,
     findUserRepo,
     resetPasswordRepo,
+    searchUserRepo,
     updateUserByIdRepo,
 } from "../services/auth.service";
 import {
@@ -332,11 +333,48 @@ export const resetPasswordController = async (req: Request, res: Response) => {
 };
 
 export const getAllUsersController = async (req: Request, res: Response) => {
-    const {
-        params: { user_id },
-    } = req;
+    try {
+        const {
+            query: { name },
+        } = req;
 
-    if (user_id) {
+        const users = name
+            ? await searchUserRepo(name.toString())
+            : await findUserRepo();
+
+        if (users) {
+            logger.info("Success get all users");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get all users",
+                data: users,
+            });
+        } else {
+            logger.info("Internal server error!");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: users - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getUserByIdController = async (req: Request, res: Response) => {
+    try {
+        const {
+            params: { user_id },
+        } = req;
+
         const user = await findUserById(user_id);
 
         if (user) {
@@ -356,26 +394,13 @@ export const getAllUsersController = async (req: Request, res: Response) => {
                 data: {},
             });
         }
-    } else {
-        const users = await findUserRepo();
-
-        if (users) {
-            logger.info("Success get all users");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success get all users",
-                data: users,
-            });
-        } else {
-            logger.info("Internal server error!");
-            res.status(500).send({
-                status: false,
-                statusCode: 500,
-                message: "Internal server error",
-                data: [],
-            });
-        }
+    } catch (error) {
+        logger.info(`ERR: user - get by id = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
 

@@ -73,3 +73,7 @@ export const updateVacancyByIdRepo = async (
 export const deleteVacancyByIdRepo = async (id: string) => {
     return await vacancyModel.findOneAndDelete({ vacancy_id: id });
 };
+
+export const searchVacancyRepo = async (title: string) => {
+    return await vacancyModel.find({ title: { $regex: title, $options: "i" } });
+};

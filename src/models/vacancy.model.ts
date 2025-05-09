@@ -8,7 +8,7 @@ const vacancySchema = new mongoose.Schema<VacancyInterface>(
             required: true,
             unique: true,
         },
-        name_vacancy: {
+        title: {
             type: String,
             required: true,
             trim: true,

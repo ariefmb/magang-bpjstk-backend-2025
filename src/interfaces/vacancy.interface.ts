@@ -1,6 +1,6 @@
 export interface VacancyInterface {
     vacancy_id: string;
-    name_vacancy: string;
+    title: string;
     status: "Open" | "open" | "Closed" | "closed" | "Pending" | "pending";
     unit: string;
     mentor_name: string;

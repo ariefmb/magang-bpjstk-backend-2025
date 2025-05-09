@@ -6,6 +6,7 @@ import {
     getAndUpdateStatusVacancy,
     getVacanciesRepo,
     getVacancyByIdRepo,
+    searchVacancyRepo,
     updateStatusVacancy,
     updateVacancyByIdRepo,
 } from "../services/vacancy.service";
@@ -21,7 +22,7 @@ export const createVacancyController = async (req: Request, res: Response) => {
     const { error, value } = createVacancyValidation(req.body);
 
     if (error) {
-        logger.info(`tes ERR: vacancy - create = ${error.details[0].message}`);
+        logger.info(`ERR: vacancy - create = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -47,7 +48,7 @@ export const createVacancyController = async (req: Request, res: Response) => {
                 data: value,
             });
         } catch (error) {
-            logger.info(`ERRR: vacancy - create = ${error}`);
+            logger.info(`ERR: vacancy - create = ${error}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
@@ -58,13 +59,49 @@ export const createVacancyController = async (req: Request, res: Response) => {
 };
 
 export const getVacanciesController = async (req: Request, res: Response) => {
-    const {
-        params: { vacancy_id },
-    } = req;
+    try {
+        const {
+            query: { title },
+        } = req;
 
-    await updateStatusVacancy(vacancy_id);
+        const vacancies = title
+            ? await searchVacancyRepo(title.toString())
+            : await getVacanciesRepo();
 
-    if (vacancy_id) {
+        if (vacancies) {
+            logger.info("Success get all vacancies data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get all vacancies data",
+                data: vacancies,
+            });
+        } else {
+            logger.info("Internal server error");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: vacancies - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getVacancyByIdController = async (req: Request, res: Response) => {
+    try {
+        const {
+            params: { vacancy_id },
+        } = req;
+
+        await updateStatusVacancy(vacancy_id);
         const vacancy = await getVacancyByIdRepo(vacancy_id);
 
         if (vacancy) {
@@ -84,25 +121,13 @@ export const getVacanciesController = async (req: Request, res: Response) => {
                 data: {},
             });
         }
-    } else {
-        const vacancies: any = await getVacanciesRepo();
-        if (vacancies) {
-            logger.info("Success get all vacancies data");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success get all vacancies data",
-                data: vacancies,
-            });
-        } else {
-            logger.info("Internal server error");
-            res.status(500).send({
-                status: false,
-                statusCode: 500,
-                message: "Internal server error",
-                data: [],
-            });
-        }
+    } catch (error) {
+        logger.info(`ERR: vacancy - get by id = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
 
