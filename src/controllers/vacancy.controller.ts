@@ -18,7 +18,6 @@ import {
 
 export const createVacancyController = async (req: Request, res: Response) => {
     req.body.vacancy_id = uuidv4();
-
     const { error, value } = createVacancyValidation(req.body);
 
     if (error) {
