@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import {
+    calculateQuarter,
     deleteReqVacancyRepo,
     getReqVacanciesRepo,
     getReqVacancyByIdRepo,
@@ -35,6 +36,8 @@ export const requestingVacancyController = async (
             const closingDate = new Date(value.close_vacancy);
             closingDate.setHours(23, 59, 59, 999);
             value.close_vacancy = closingDate;
+
+            value.tw = calculateQuarter(value.close_vacancy);
 
             await requestVacancyRepo(value);
             logger.info("Success request new vacancy");
@@ -153,6 +156,10 @@ export const updateReqVacancyController = async (
         });
     } else {
         try {
+            if (value.close_vacancy) {
+                value.tw = calculateQuarter(value.close_vacancy);
+            }
+
             const updateData = await updateReqVacancyRepo(reqVacancy_id, value);
 
             if (updateData) {

@@ -7,6 +7,7 @@ export interface VacancyInterface {
     contact: string;
     position: string;
     quota: number;
+    tw: number;
     duration: number;
     working_model:
         | "Work At Office"

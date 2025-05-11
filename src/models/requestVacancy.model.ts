@@ -16,8 +16,15 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
         status: {
             type: String,
             required: true,
-            enum: ["Approved", "approved", "Rejected", "rejected", "Waiting", "waiting"],
-            default: "Waiting"
+            enum: [
+                "Approved",
+                "approved",
+                "Rejected",
+                "rejected",
+                "Waiting",
+                "waiting",
+            ],
+            default: "Waiting",
         },
         unit: {
             type: String,
@@ -43,6 +50,9 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
             required: true,
             min: 1,
             default: 1,
+        },
+        tw: {
+            type: Number,
         },
         duration: {
             type: Number,

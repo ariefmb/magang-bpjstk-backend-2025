@@ -32,3 +32,8 @@ export const updateReqVacancyRepo = async (
 export const deleteReqVacancyRepo = async (id: string) => {
     return await reqVacancyModel.findOneAndDelete({ reqVacancy_id: id });
 };
+
+export const calculateQuarter = (date: Date) => {
+    const month = date.getMonth();
+    return Math.ceil(month / 3);
+};

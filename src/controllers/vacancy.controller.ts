@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { getReqVacancyByIdRepo } from "../services/requestVacancy.service";
+import {
+    calculateQuarter,
+    getReqVacancyByIdRepo,
+} from "../services/requestVacancy.service";
 import {
     approvalVacancyRepo,
     createVacancyApprovedRepo,
@@ -41,6 +44,8 @@ export const createVacancyController = async (req: Request, res: Response) => {
                 value.open_vacancy,
                 value.close_vacancy
             );
+
+            value.tw = calculateQuarter(value.close_vacancy);
 
             await createVacancyRepo(value);
             logger.info("Success create new vacancy");
@@ -149,15 +154,20 @@ export const updateVacancyController = async (req: Request, res: Response) => {
         });
     } else {
         try {
-            if (req.body.open_vacancy || req.body.close_vacancy) {
+            if (req.body.close_vacancy) {
                 const closingDate = new Date(value.close_vacancy);
                 closingDate.setHours(23, 59, 59, 999);
                 value.close_vacancy = closingDate;
+            }
 
+            const data = await getVacancyByIdRepo(vacancy_id);
+
+            if (data) {
                 value.status = getAndUpdateStatusVacancy(
-                    value.open_vacancy,
-                    value.close_vacancy
+                    data.open_vacancy,
+                    data.close_vacancy
                 );
+                value.tw = calculateQuarter(data.close_vacancy);
             }
 
             const updateData = await updateVacancyByIdRepo(vacancy_id, value);

@@ -81,6 +81,11 @@ export const searchVacancyRepo = async (title: string) => {
     return await vacancyModel.find({ title: { $regex: title, $options: "i" } });
 };
 
+export const calculateQuarter = (date: Date) => {
+    const month = date.getMonth();
+    return Math.ceil(month / 3);
+};
+
 export const approvalVacancyRepo = async (
     id: string,
     payload: requestVacancyInterface
@@ -91,13 +96,16 @@ export const approvalVacancyRepo = async (
     );
 };
 
-export const createVacancyApprovedRepo = async (payload: requestVacancyInterface) => {
+export const createVacancyApprovedRepo = async (
+    payload: requestVacancyInterface
+) => {
     const {
         title,
         unit,
         mentor_name,
         contact,
         position,
+        tw,
         duration,
         working_model,
         open_vacancy,
@@ -118,12 +126,13 @@ export const createVacancyApprovedRepo = async (payload: requestVacancyInterface
         contact: contact,
         position: position,
         quota: quotaGiven || 1,
+        tw: tw,
         duration: duration,
         working_model: working_model,
         open_vacancy: open_vacancy,
         close_vacancy: close_vacancy,
-        description: description
+        description: description,
     };
 
-    return await createVacancyRepo(newVacancyDataMapper)
+    return await createVacancyRepo(newVacancyDataMapper);
 };

@@ -43,6 +43,9 @@ const vacancySchema = new mongoose.Schema<VacancyInterface>(
             min: 1,
             default: 1,
         },
+        tw: {
+            type: Number,
+        },
         duration: {
             type: Number,
             required: true,
