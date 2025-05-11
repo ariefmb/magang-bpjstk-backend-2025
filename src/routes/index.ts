@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { ApplicantRouter } from "./applicant.route";
 import { AuthRouter } from "./auth.route";
 import { HealthRouter } from "./health.route";
 import { OTPRouter } from "./otp.route";
@@ -13,6 +14,7 @@ const _routes: Array<[string, Router]> = [
     ["/otp", OTPRouter],
     ["/vacancy", VacancyRouter],
     ["/request/vacancy", ReqVacancyRoute],
+    ["/applicant", ApplicantRouter],
 ];
 
 _routes.forEach((route) => {

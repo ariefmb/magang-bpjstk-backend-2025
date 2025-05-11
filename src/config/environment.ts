@@ -8,6 +8,7 @@ const CONFIG = {
     mail_host: process.env.MAIL_HOST,
     mail_user: process.env.MAIL_USER,
     mail_pass: process.env.MAIL_PASS,
+    google_drive_scopes: process.env.GOOGLE_DRIVE_SCOPES,
 };
 
 if (!CONFIG.db) {
@@ -26,6 +27,10 @@ if (!CONFIG.mail_user || !CONFIG.mail_pass || !CONFIG.mail_host) {
     logger.error(
         "Missing environment variables: MAIL_HOST, MAIL_USER, or MAIL_PASS"
     );
+    process.exit(1);
+}
+if (!CONFIG.google_drive_scopes) {
+    logger.error("Missing environment variables: GOOGLE_DRIVE_SCOPES");
     process.exit(1);
 }
 
