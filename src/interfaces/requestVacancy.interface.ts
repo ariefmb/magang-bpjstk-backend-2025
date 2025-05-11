@@ -15,6 +15,7 @@ export interface requestVacancyInterface {
     quota: number;
     tw: number;
     duration: number;
+    city: string;
     working_model:
         | "Work At Office"
         | "work at office"

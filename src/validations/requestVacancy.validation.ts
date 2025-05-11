@@ -20,6 +20,7 @@ export const requestVacancyValidation = (payload: requestVacancyInterface) => {
         quota: Joi.number().min(1).default(1).required(),
         tw: Joi.number(),
         duration: Joi.number().min(1).default(1).required(),
+        city: Joi.string().required(),
         working_model: Joi.string()
             .valid(
                 "Work At Office",
@@ -57,6 +58,7 @@ export const updateRequestVacancyValidation = (
         quota: Joi.number().min(1),
         tw: Joi.number(),
         duration: Joi.number().min(1),
+        city: Joi.string(),
         working_model: Joi.string().valid(
             "Work At Office",
             "work at office",

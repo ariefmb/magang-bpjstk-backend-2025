@@ -60,6 +60,10 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
             min: 1,
             default: 1,
         },
+        city: {
+            type: String,
+            required: true,
+        },
         working_model: {
             type: String,
             required: true,
