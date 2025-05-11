@@ -6,13 +6,21 @@ import {
     getVacancyByIdController,
     updateVacancyController,
 } from "../controllers/vacancy.controller";
-import { requireAdmin } from "../middleware/auth";
+import { authorization } from "../middleware/authorization";
 
 export const VacancyRouter: Router = Router();
 
-VacancyRouter.post("/", requireAdmin, createVacancyController);
+VacancyRouter.post("/", authorization(["admin"]), createVacancyController);
 VacancyRouter.get("/", getVacanciesController);
 VacancyRouter.get("/search", getVacanciesController);
 VacancyRouter.get("/:vacancy_id", getVacancyByIdController);
-VacancyRouter.put("/:vacancy_id", requireAdmin, updateVacancyController);
-VacancyRouter.delete("/:vacancy_id", requireAdmin, deleteVacancyController);
+VacancyRouter.put(
+    "/:vacancy_id",
+    authorization(["admin"]),
+    updateVacancyController
+);
+VacancyRouter.delete(
+    "/:vacancy_id",
+    authorization(["admin"]),
+    deleteVacancyController
+);

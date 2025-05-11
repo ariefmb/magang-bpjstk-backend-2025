@@ -5,7 +5,7 @@ import {
     getProductsController,
     updateProductByIdController,
 } from "../controllers/product.controller";
-import { requireAdmin } from "../middleware/auth";
+import { requireAdmin } from "../middleware/authorization";
 
 export const ProductRouter: Router = Router();
 

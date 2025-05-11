@@ -6,25 +6,37 @@ import {
     requestingVacancyController,
     updateReqVacancyController,
 } from "../controllers/requestVacancy.controller";
-import { requireAdminMentor, requireMentor } from "../middleware/auth";
+import { authorization } from "../middleware/authorization";
 
 export const ReqVacancyRoute: Router = Router();
 
-ReqVacancyRoute.post("/", requireMentor, requestingVacancyController);
-ReqVacancyRoute.get("/", requireAdminMentor, getReqVacanciesController);
-ReqVacancyRoute.get("/search", requireAdminMentor, getReqVacanciesController);
+ReqVacancyRoute.post(
+    "/",
+    authorization(["mentor"]),
+    requestingVacancyController
+);
+ReqVacancyRoute.get(
+    "/",
+    authorization(["admin", "mentor"]),
+    getReqVacanciesController
+);
+ReqVacancyRoute.get(
+    "/search",
+    authorization(["admin", "mentor"]),
+    getReqVacanciesController
+);
 ReqVacancyRoute.get(
     "/:reqVacancy_id",
-    requireAdminMentor,
+    authorization(["admin", "mentor"]),
     getReqVacancyByIdController
 );
 ReqVacancyRoute.put(
     "/:reqVacancy_id",
-    requireMentor,
+    authorization(["mentor"]),
     updateReqVacancyController
 );
 ReqVacancyRoute.delete(
     "/:reqVacancy_id",
-    requireAdminMentor,
+    authorization(["admin", "mentor"]),
     deleteReqVacancyController
 );

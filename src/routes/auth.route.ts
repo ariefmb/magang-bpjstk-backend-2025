@@ -11,7 +11,7 @@ import {
     resetPasswordController,
     updateUserController,
 } from "../controllers/auth.controller";
-import { requireAdmin } from "../middleware/auth";
+import { authorization } from "../middleware/authorization";
 
 export const AuthRouter: Router = Router();
 
@@ -21,8 +21,8 @@ AuthRouter.post("/refresh", refreshSessionController);
 AuthRouter.post("/logout", logoutController);
 AuthRouter.post("/forgot_password", forgotPasswordController);
 AuthRouter.post("/forgot_password/reset", resetPasswordController);
-AuthRouter.get("/", requireAdmin, getAllUsersController);
-AuthRouter.get("/search", requireAdmin, getAllUsersController);
-AuthRouter.get("/:user_id", requireAdmin, getUserByIdController);
-AuthRouter.put("/:user_id", requireAdmin, updateUserController);
-AuthRouter.delete("/:user_id", requireAdmin, deleteUserController);
+AuthRouter.get("/", authorization(["admin"]), getAllUsersController);
+AuthRouter.get("/search", authorization(["admin"]), getAllUsersController);
+AuthRouter.get("/:user_id", authorization(["admin"]), getUserByIdController);
+AuthRouter.put("/:user_id", authorization(["admin"]), updateUserController);
+AuthRouter.delete("/:user_id", authorization(["admin"]), deleteUserController);
