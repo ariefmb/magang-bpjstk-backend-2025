@@ -1,4 +1,7 @@
+import { requestVacancyInterface } from "src/interfaces/requestVacancy.interface";
+import { v4 as uuidv4 } from "uuid";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
+import reqVacancyModel from "../models/requestVacancy.model";
 import vacancyModel from "../models/vacancy.model";
 
 export const createVacancyRepo = async (payload: VacancyInterface) => {
@@ -76,4 +79,51 @@ export const deleteVacancyByIdRepo = async (id: string) => {
 
 export const searchVacancyRepo = async (title: string) => {
     return await vacancyModel.find({ title: { $regex: title, $options: "i" } });
+};
+
+export const approvalVacancyRepo = async (
+    id: string,
+    payload: requestVacancyInterface
+) => {
+    return await reqVacancyModel.findOneAndUpdate(
+        { reqVacancy_id: id },
+        { $set: payload }
+    );
+};
+
+export const createVacancyApprovedRepo = async (payload: requestVacancyInterface) => {
+    const {
+        title,
+        unit,
+        mentor_name,
+        contact,
+        position,
+        duration,
+        working_model,
+        open_vacancy,
+        close_vacancy,
+        description,
+        quotaGiven,
+    } = payload;
+
+    const newstatus = getAndUpdateStatusVacancy(open_vacancy, close_vacancy);
+    const newVacancyId = uuidv4();
+
+    const newVacancyDataMapper: VacancyInterface = {
+        vacancy_id: newVacancyId,
+        title: title,
+        status: newstatus,
+        unit: unit,
+        mentor_name: mentor_name,
+        contact: contact,
+        position: position,
+        quota: quotaGiven || 1,
+        duration: duration,
+        working_model: working_model,
+        open_vacancy: open_vacancy,
+        close_vacancy: close_vacancy,
+        description: description
+    };
+
+    return await createVacancyRepo(newVacancyDataMapper)
 };

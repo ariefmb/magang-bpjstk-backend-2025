@@ -32,6 +32,10 @@ export const requestingVacancyController = async (
         });
     } else {
         try {
+            const closingDate = new Date(value.close_vacancy);
+            closingDate.setHours(23, 59, 59, 999);
+            value.close_vacancy = closingDate;
+
             await requestVacancyRepo(value);
             logger.info("Success request new vacancy");
             res.status(201).send({

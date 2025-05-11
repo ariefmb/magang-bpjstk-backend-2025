@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+    approvalReqVacancyController,
     createVacancyController,
     deleteVacancyController,
     getVacanciesController,
@@ -23,4 +24,9 @@ VacancyRouter.delete(
     "/:vacancy_id",
     authorization(["admin"]),
     deleteVacancyController
+);
+VacancyRouter.put(
+    "/approval/:reqVacancy_id",
+    authorization(["admin"]),
+    approvalReqVacancyController
 );

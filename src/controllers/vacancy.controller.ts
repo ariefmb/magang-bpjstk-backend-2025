@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { getReqVacancyByIdRepo } from "../services/requestVacancy.service";
 import {
+    approvalVacancyRepo,
+    createVacancyApprovedRepo,
     createVacancyRepo,
     deleteVacancyByIdRepo,
     getAndUpdateStatusVacancy,
@@ -12,6 +15,7 @@ import {
 } from "../services/vacancy.service";
 import logger from "../utils/logger";
 import {
+    approvalReqVacancyValidation,
     createVacancyValidation,
     updateVacancyValidation,
 } from "../validations/vacancy.validation";
@@ -213,5 +217,93 @@ export const deleteVacancyController = async (req: Request, res: Response) => {
             statusCode: 422,
             message: error,
         });
+    }
+};
+
+export const approvalReqVacancyController = async (
+    req: Request,
+    res: Response
+) => {
+    const {
+        params: { reqVacancy_id },
+    } = req;
+    const { error, value } = approvalReqVacancyValidation(req.body);
+
+    if (error) {
+        logger.info(`ERR: vacancy - update = ${error.details[0].message}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        try {
+            if (req.body.open_vacancy || req.body.close_vacancy) {
+                const closingDate = new Date(value.close_vacancy);
+                closingDate.setHours(23, 59, 59, 999);
+                value.close_vacancy = closingDate;
+
+                value.status = getAndUpdateStatusVacancy(
+                    value.open_vacancy,
+                    value.close_vacancy
+                );
+            }
+
+            const updateData = await approvalVacancyRepo(reqVacancy_id, value);
+
+            if (updateData) {
+                if (
+                    value.status === "Approved" ||
+                    value.status === "approved"
+                ) {
+                    const newVacancyData = await getReqVacancyByIdRepo(
+                        reqVacancy_id
+                    );
+
+                    if (newVacancyData) {
+                        await createVacancyApprovedRepo(newVacancyData);
+                        logger.info("Success approved requested vacancy");
+                        res.status(201).send({
+                            status: true,
+                            statusCode: 201,
+                            message: "Success approved requested vacancy",
+                        });
+                    } else {
+                        logger.info("Requested vacancy data not found!");
+                        res.status(404).send({
+                            status: false,
+                            statusCode: 404,
+                            message: "Requested vacancy data not found!",
+                            data: {},
+                        });
+                    }
+                }
+                if (
+                    value.status === "Rejected" ||
+                    value.status === "rejected"
+                ) {
+                    logger.info("Success rejected requested vacancy");
+                    res.status(200).send({
+                        status: true,
+                        statusCode: 200,
+                        message: "Success rejected requested vacancy",
+                    });
+                }
+            } else {
+                logger.info("Vacancy not found!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "Vacancy not found!",
+                });
+            }
+        } catch (error) {
+            logger.error(`ERR: vacancy - update = ${error}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error,
+            });
+        }
     }
 };

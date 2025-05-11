@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { requestVacancyInterface } from "src/interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
 
 export const createVacancyValidation = (payload: VacancyInterface) => {
@@ -52,16 +53,35 @@ export const updateVacancyValidation = (payload: VacancyInterface) => {
         position: Joi.string().trim(),
         quota: Joi.number().min(1),
         duration: Joi.number().min(1),
-        working_model: Joi.string()
-            .valid(
-                "Work At Office",
-                "work at office",
-                "Work From Home",
-                "work from home"
-            ),
+        working_model: Joi.string().valid(
+            "Work At Office",
+            "work at office",
+            "Work From Home",
+            "work from home"
+        ),
         open_vacancy: Joi.date(),
         close_vacancy: Joi.date(),
         description: Joi.string().allow("").optional(),
+    });
+
+    return Schema.validate(payload);
+};
+
+export const approvalReqVacancyValidation = (
+    payload: requestVacancyInterface
+) => {
+    const Schema = Joi.object({
+        status: Joi.string()
+            .valid(
+                "Approved",
+                "approved",
+                "Rejected",
+                "rejected",
+                "Waiting",
+                "waiting"
+            )
+            .required(),
+        quotaGiven: Joi.number().required(),
     });
 
     return Schema.validate(payload);
