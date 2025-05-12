@@ -14,3 +14,4 @@ DS_Store
 
 # 
 .env
+/src/config/credentials.json
