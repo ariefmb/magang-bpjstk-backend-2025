@@ -2,11 +2,19 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import {
     addApplicantRepo,
+    deleteApplicantRepo,
+    getApplicantByIdRepo,
+    getApplicantsRepo,
+    searchApplicantsRepo,
+    updateApplicantRepo,
     uploadAndDelete,
 } from "../services/applicant.service";
 import { findUserByEmail } from "../services/auth.service";
 import logger from "../utils/logger";
-import { addApplicantValidation } from "../validations/applicant.validation";
+import {
+    addApplicantValidation,
+    updateApplicantValidation,
+} from "../validations/applicant.validation";
 
 export const addApplicantController = async (req: Request, res: Response) => {
     req.body.applicant_id = uuidv4();
@@ -43,10 +51,10 @@ export const addApplicantController = async (req: Request, res: Response) => {
                         "jpeg",
                         "png",
                     ]),
-                    suratPengantar: await uploadAndDelete(files.suratPengantar[0], [
-                        "pdf",
-                        "docx",
-                    ]),
+                    suratPengantar: await uploadAndDelete(
+                        files.suratPengantar[0],
+                        ["pdf", "docx"]
+                    ),
                     cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
                     portfolio: await uploadAndDelete(files.portfolio[0], [
                         "pdf",
@@ -75,5 +83,234 @@ export const addApplicantController = async (req: Request, res: Response) => {
                 message: error,
             });
         }
+    }
+};
+
+export const getAllApplicantsController = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const {
+            query: { name },
+        } = req;
+
+        const applicants = name
+            ? await searchApplicantsRepo(name.toString())
+            : await getApplicantsRepo();
+
+        if (applicants) {
+            logger.info("Success get all applicants data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get all applicants data",
+                data: applicants,
+            });
+        } else {
+            logger.info("Internal server error");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: applicants - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getApplicantByIdController = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const {
+            params: { applicant_id },
+        } = req;
+        const applicant = await getApplicantByIdRepo(applicant_id);
+
+        if (applicant) {
+            logger.info("Success get applicant data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get applicant data",
+                data: applicant,
+            });
+        } else {
+            logger.info("Applicant data not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Applicant data not found!",
+                data: {},
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: applicant - get by id = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const updateApplicantController = async (
+    req: Request,
+    res: Response
+) => {
+    const {
+        params: { applicant_id },
+    } = req;
+    const { error, value } = updateApplicantValidation(req.body);
+
+    if (error) {
+        logger.info(
+            `ERR JOI: applicant - update = ${error.details[0].message}`
+        );
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error.details[0].message,
+        });
+    } else {
+        try {
+            const user = res.locals.user;
+            const userApplicant = await getApplicantByIdRepo(applicant_id);
+            console.log(`user: ${JSON.stringify(user._doc)}
+            user email: ${userApplicant}
+            `);
+
+            if (
+                user._doc.email !== userApplicant?.email &&
+                user._doc.role !== "admin"
+            ) {
+                logger.info(
+                    "ERR: applicant - update = this user have no access"
+                );
+                res.status(422).send({
+                    status: false,
+                    statusCode: 422,
+                    message: "this user have no access",
+                });
+            } else {
+                const files = req.files as {
+                    [fieldname: string]: Express.Multer.File[];
+                };
+
+                const applicantDataMapper = {
+                    ...value,
+                    photo: await uploadAndDelete(files.photo[0], [
+                        "jpg",
+                        "jpeg",
+                        "png",
+                    ]),
+                    suratPengantar: await uploadAndDelete(
+                        files.suratPengantar[0],
+                        ["pdf", "docx"]
+                    ),
+                    cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
+                    portfolio: await uploadAndDelete(files.portfolio[0], [
+                        "pdf",
+                        "docx",
+                    ]),
+                };
+
+                if (files.photo[0])
+                    applicantDataMapper.photo = await uploadAndDelete(
+                        files.photo[0],
+                        ["jpg", "jpeg", "png"]
+                    );
+
+                if (files.suratPengantar[0])
+                    applicantDataMapper.suratPengantar = await uploadAndDelete(
+                        files.suratPengantar[0],
+                        ["pdf", "docx"]
+                    );
+
+                if (files.cv[0])
+                    applicantDataMapper.cv = await uploadAndDelete(
+                        files.cv[0],
+                        ["pdf", "docx"]
+                    );
+                if (files.portfolio[0])
+                    applicantDataMapper.portfolio = await uploadAndDelete(
+                        files.portfolio[0],
+                        ["pdf", "docx"]
+                    );
+
+                const updateData = await updateApplicantRepo(
+                    applicant_id,
+                    applicantDataMapper
+                );
+
+                if (updateData) {
+                    logger.info("Success update applicant data");
+                    res.status(200).send({
+                        status: true,
+                        statusCode: 200,
+                        message: "Success update applicant data",
+                    });
+                } else {
+                    logger.info("Applicant data not found!");
+                    res.status(404).send({
+                        status: false,
+                        statusCode: 404,
+                        message: "Applicant data not found!",
+                    });
+                }
+            }
+        } catch (error) {
+            logger.error(`ERR: applicant - update = ${error}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error,
+            });
+        }
+    }
+};
+
+export const deleteApplicantController = async (
+    req: Request,
+    res: Response
+) => {
+    const {
+        params: { applicant_id },
+    } = req;
+
+    try {
+        const deletedData = await deleteApplicantRepo(applicant_id);
+
+        if (deletedData) {
+            logger.info("Success delete applicant data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success delete applicant data",
+            });
+        } else {
+            logger.info("Applicant data not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Applicant data not found!",
+            });
+        }
+    } catch (error) {
+        logger.error(`ERR: applicant - delete = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };

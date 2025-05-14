@@ -14,7 +14,9 @@ export const uploadAndDelete = async (
     allowedExtes: string[]
 ) => {
     if (!validateFileExtensions(file, allowedExtes)) {
-        throw new Error(`Invalid file extensions: ${file.originalname} must be ${allowedExtes}`);
+        throw new Error(
+            `Invalid file extensions: ${file.originalname} must be ${allowedExtes}`
+        );
     }
     const uploaded = await uploadToDrive(
         file.path,
@@ -24,4 +26,32 @@ export const uploadAndDelete = async (
     );
     fs.unlinkSync(file.path);
     return uploaded.webViewLink || uploaded.webContentLink || "";
+};
+
+export const getApplicantsRepo = async () => {
+    return await applicantModel.find();
+};
+
+export const getApplicantByIdRepo = async (id: string) => {
+    return await applicantModel.findOne({ applicant_id: id });
+};
+
+export const searchApplicantsRepo = async (name: string) => {
+    return await applicantModel.find({
+        name: { $regex: name, $options: "i" },
+    });
+};
+
+export const updateApplicantRepo = async (
+    id: string,
+    payload: ApplicantInterface
+) => {
+    return await applicantModel.findOneAndUpdate(
+        { applicant_id: id },
+        { $set: payload }
+    );
+};
+
+export const deleteApplicantRepo = async (id: string) => {
+    return await applicantModel.findOneAndDelete({ applicant_id: id });
 };
