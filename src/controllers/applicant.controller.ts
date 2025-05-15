@@ -4,12 +4,13 @@ import {
     addApplicantRepo,
     deleteApplicantRepo,
     getApplicantByIdRepo,
+    getApplicantsByEmailRepo,
     getApplicantsRepo,
     searchApplicantsRepo,
     updateApplicantRepo,
     uploadAndDelete,
 } from "../services/applicant.service";
-import { findUserByEmail } from "../services/auth.service";
+import { getVacancyByIdRepo } from "../services/vacancy.service";
 import logger from "../utils/logger";
 import {
     addApplicantValidation,
@@ -30,9 +31,8 @@ export const addApplicantController = async (req: Request, res: Response) => {
     } else {
         try {
             const user = res.locals.user;
-            const userApplicant = await findUserByEmail(value.email);
 
-            if (user._doc.email !== userApplicant?.email) {
+            if (user._doc.email !== value.email) {
                 logger.info("ERR: applicant - add = user email does not valid");
                 res.status(422).send({
                     status: false,
@@ -40,36 +40,85 @@ export const addApplicantController = async (req: Request, res: Response) => {
                     message: "user email does not valid",
                 });
             } else {
-                const files = req.files as {
-                    [fieldname: string]: Express.Multer.File[];
-                };
+                const vacancyExist = await getVacancyByIdRepo(value.vacancy_id);
 
-                const applicantDataMapper = {
-                    ...value,
-                    photo: await uploadAndDelete(files.photo[0], [
-                        "jpg",
-                        "jpeg",
-                        "png",
-                    ]),
-                    suratPengantar: await uploadAndDelete(
-                        files.suratPengantar[0],
-                        ["pdf", "docx"]
-                    ),
-                    cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
-                    portfolio: await uploadAndDelete(files.portfolio[0], [
-                        "pdf",
-                        "docx",
-                    ]),
-                };
+                if (!vacancyExist) {
+                    logger.info(
+                        "ERR: applicant - add = vacancy does not exist"
+                    );
+                    res.status(404).send({
+                        status: false,
+                        statusCode: 404,
+                        message: "vacancy does not exist",
+                    });
+                } else {
+                    if (!["Open", "open"].includes(vacancyExist.status)) {
+                        logger.info(
+                            "ERR: applicant - add = vacancy does not open"
+                        );
+                        res.status(422).send({
+                            status: false,
+                            statusCode: 422,
+                            message: "vacancy does not open",
+                        });
+                    } else {
+                        const applicantsExist = await getApplicantsByEmailRepo(
+                            value.email
+                        );
 
-                await addApplicantRepo(applicantDataMapper);
-                logger.info("Success add new applicant");
-                res.status(201).send({
-                    status: true,
-                    statusCode: 201,
-                    message: "Success add new applicant",
-                    data: value,
-                });
+                        const hasOnGoingProgram = applicantsExist.some(
+                            (applicant) =>
+                                !["Off Boarding", "Rejected"].includes(
+                                    applicant.status
+                                )
+                        );
+
+                        if (hasOnGoingProgram) {
+                            logger.info(
+                                "ERR: applicant - add = applicant has on going program"
+                            );
+                            res.status(422).send({
+                                status: false,
+                                statusCode: 422,
+                                message: "Applicant has on going program",
+                            });
+                        } else {
+                            const files = req.files as {
+                                [fieldname: string]: Express.Multer.File[];
+                            };
+
+                            const applicantDataMapper = {
+                                ...value,
+                                photo: await uploadAndDelete(files.photo[0], [
+                                    "jpg",
+                                    "jpeg",
+                                    "png",
+                                ]),
+                                suratPengantar: await uploadAndDelete(
+                                    files.suratPengantar[0],
+                                    ["pdf", "docx"]
+                                ),
+                                cv: await uploadAndDelete(files.cv[0], [
+                                    "pdf",
+                                    "docx",
+                                ]),
+                                portfolio: await uploadAndDelete(
+                                    files.portfolio[0],
+                                    ["pdf", "docx"]
+                                ),
+                            };
+
+                            await addApplicantRepo(applicantDataMapper);
+                            logger.info("Success add new applicant");
+                            res.status(201).send({
+                                status: true,
+                                statusCode: 201,
+                                message: "Success add new applicant",
+                                data: value,
+                            });
+                        }
+                    }
+                }
             }
         } catch (error) {
             logger.info(`ERR: applicant - add = ${error}`);

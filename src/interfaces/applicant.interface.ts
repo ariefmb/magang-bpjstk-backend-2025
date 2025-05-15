@@ -1,5 +1,6 @@
 export interface ApplicantInterface {
     applicant_id: string;
+    vacancy_id: string;
     name: string;
     nik: string;
     email: string;
@@ -19,5 +20,5 @@ export interface ApplicantInterface {
         | "Confirmation"
         | "Working Experience"
         | "Graduation";
-    status: "Approved" | "Rejected" | "On Going" | "Waiting";
+    status: "Approved" | "Rejected" | "On Going" | "Waiting" | "Off Boarding";
 }

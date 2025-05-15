@@ -55,3 +55,7 @@ export const updateApplicantRepo = async (
 export const deleteApplicantRepo = async (id: string) => {
     return await applicantModel.findOneAndDelete({ applicant_id: id });
 };
+
+export const getApplicantsByEmailRepo = async (email: string) => {
+    return await applicantModel.find({ email: { $regex: email } });
+};
