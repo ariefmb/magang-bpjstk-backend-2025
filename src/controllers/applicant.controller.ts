@@ -62,10 +62,6 @@ export const addApplicantController = async (req: Request, res: Response) => {
                     ]),
                 };
 
-                console.log(
-                    `applicant data: ${JSON.stringify(applicantDataMapper)}`
-                );
-
                 await addApplicantRepo(applicantDataMapper);
                 logger.info("Success add new applicant");
                 res.status(201).send({
@@ -185,88 +181,79 @@ export const updateApplicantController = async (
         try {
             const user = res.locals.user;
             const userApplicant = await getApplicantByIdRepo(applicant_id);
-            console.log(`user: ${JSON.stringify(user._doc)}
-            user email: ${userApplicant}
-            `);
 
-            if (
-                user._doc.email !== userApplicant?.email &&
-                user._doc.role !== "admin"
-            ) {
-                logger.info(
-                    "ERR: applicant - update = this user have no access"
-                );
-                res.status(422).send({
-                    status: false,
-                    statusCode: 422,
-                    message: "this user have no access",
-                });
-            } else {
-                const files = req.files as {
-                    [fieldname: string]: Express.Multer.File[];
-                };
-
-                const applicantDataMapper = {
-                    ...value,
-                    photo: await uploadAndDelete(files.photo[0], [
-                        "jpg",
-                        "jpeg",
-                        "png",
-                    ]),
-                    suratPengantar: await uploadAndDelete(
-                        files.suratPengantar[0],
-                        ["pdf", "docx"]
-                    ),
-                    cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
-                    portfolio: await uploadAndDelete(files.portfolio[0], [
-                        "pdf",
-                        "docx",
-                    ]),
-                };
-
-                if (files.photo[0])
-                    applicantDataMapper.photo = await uploadAndDelete(
-                        files.photo[0],
-                        ["jpg", "jpeg", "png"]
+            if (userApplicant) {
+                if (
+                    user._doc.email !== userApplicant.email &&
+                    user._doc.role !== "admin"
+                ) {
+                    logger.info(
+                        "ERR: applicant - update = this user have no access"
                     );
-
-                if (files.suratPengantar[0])
-                    applicantDataMapper.suratPengantar = await uploadAndDelete(
-                        files.suratPengantar[0],
-                        ["pdf", "docx"]
-                    );
-
-                if (files.cv[0])
-                    applicantDataMapper.cv = await uploadAndDelete(
-                        files.cv[0],
-                        ["pdf", "docx"]
-                    );
-                if (files.portfolio[0])
-                    applicantDataMapper.portfolio = await uploadAndDelete(
-                        files.portfolio[0],
-                        ["pdf", "docx"]
-                    );
-
-                const updateData = await updateApplicantRepo(
-                    applicant_id,
-                    applicantDataMapper
-                );
-
-                if (updateData) {
-                    logger.info("Success update applicant data");
-                    res.status(200).send({
-                        status: true,
-                        statusCode: 200,
-                        message: "Success update applicant data",
+                    res.status(422).send({
+                        status: false,
+                        statusCode: 422,
+                        message: "this user have no access",
                     });
                 } else {
-                    logger.info("Applicant data not found!");
-                    res.status(404).send({
-                        status: false,
-                        statusCode: 404,
-                        message: "Applicant data not found!",
-                    });
+                    const files = req.files as {
+                        [fieldname: string]: Express.Multer.File[];
+                    };
+
+                    const applicantDataMapper = {
+                        ...value,
+                    };
+
+                    if (files.photo?.[0])
+                        applicantDataMapper.photo = await uploadAndDelete(
+                            files.photo[0],
+                            ["jpg", "jpeg", "png"]
+                        );
+                    if (files.suratPengantar?.[0])
+                        applicantDataMapper.suratPengantar =
+                            await uploadAndDelete(files.suratPengantar[0], [
+                                "pdf",
+                                "docx",
+                            ]);
+                    if (files.cv?.[0])
+                        applicantDataMapper.cv = await uploadAndDelete(
+                            files.cv[0],
+                            ["pdf", "docx"]
+                        );
+                    if (files.portfolio?.[0])
+                        applicantDataMapper.portfolio = await uploadAndDelete(
+                            files.portfolio[0],
+                            ["pdf", "docx"]
+                        );
+
+                    const updateData = await updateApplicantRepo(
+                        applicant_id,
+                        applicantDataMapper
+                    );
+
+                    if (updateData) {
+                        logger.info("Success update applicant data");
+                        res.status(200).send({
+                            status: true,
+                            statusCode: 200,
+                            message: "Success update applicant data",
+                        });
+                    } else {
+                        logger.info("Applicant data not found!");
+                        res.status(404).send({
+                            status: false,
+                            statusCode: 404,
+                            message: "Applicant data not found!",
+                        });
+                    }
                 }
+            } else {
+                logger.info("Applicant data not found!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "Applicant data not found!",
+                });
             }
         } catch (error) {
             logger.error(`ERR: applicant - update = ${error}`);
