@@ -4,12 +4,12 @@ import { ApplicantInterface } from "../interfaces/applicant.interface";
 const applicantSchema = new mongoose.Schema<ApplicantInterface>(
     {
         applicant_id: { type: String, required: true, unique: true },
+        vacancy_id: { type: String, required: true, unique: true },
         name: { type: String, required: true, trim: true },
         nik: { type: String, required: true, trim: true },
         email: {
             type: String,
             required: true,
-            unique: true,
             lowercase: true,
             trim: true,
         },
@@ -37,7 +37,13 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
         },
         status: {
             type: String,
-            enum: ["Approved", "Rejected", "On Going", "Waiting"],
+            enum: [
+                "Approved",
+                "Rejected",
+                "On Going",
+                "Waiting",
+                "Off Boarding",
+            ],
             default: "Waiting",
             required: true,
         },

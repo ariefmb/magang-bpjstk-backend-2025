@@ -8,7 +8,8 @@ const CONFIG = {
     mail_host: process.env.MAIL_HOST,
     mail_user: process.env.MAIL_USER,
     mail_pass: process.env.MAIL_PASS,
-    google_drive_scopes: process.env.GOOGLE_DRIVE_SCOPES,
+    google_drive_folder_id: process.env.GOOGLE_DRIVE_FOLDER_ID || '',
+    google_drive_keyfile: "config/credentials.json",
 };
 
 if (!CONFIG.db) {
@@ -29,7 +30,7 @@ if (!CONFIG.mail_user || !CONFIG.mail_pass || !CONFIG.mail_host) {
     );
     process.exit(1);
 }
-if (!CONFIG.google_drive_scopes) {
+if (!CONFIG.google_drive_keyfile) {
     logger.error("Missing environment variables: GOOGLE_DRIVE_SCOPES");
     process.exit(1);
 }

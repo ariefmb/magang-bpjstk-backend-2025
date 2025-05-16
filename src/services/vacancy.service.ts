@@ -1,5 +1,5 @@
-import { requestVacancyInterface } from "src/interfaces/requestVacancy.interface";
 import { v4 as uuidv4 } from "uuid";
+import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
 import reqVacancyModel from "../models/requestVacancy.model";
 import vacancyModel from "../models/vacancy.model";

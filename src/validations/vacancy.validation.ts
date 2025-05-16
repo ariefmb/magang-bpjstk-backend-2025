@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { requestVacancyInterface } from "src/interfaces/requestVacancy.interface";
+import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
 
 export const createVacancyValidation = (payload: VacancyInterface) => {

@@ -32,7 +32,6 @@ export const requestVacancyValidation = (payload: requestVacancyInterface) => {
         open_vacancy: Joi.date().default(Date.now),
         close_vacancy: Joi.date().required(),
         description: Joi.string().allow("").optional(),
-        quotaGiven: Joi.number().allow(null).optional(),
     });
 
     return Schema.validate(payload);
@@ -68,7 +67,6 @@ export const updateRequestVacancyValidation = (
         open_vacancy: Joi.date(),
         close_vacancy: Joi.date(),
         description: Joi.string().allow("").optional(),
-        quotaGiven: Joi.number().allow(null).optional(),
     });
 
     return Schema.validate(payload);
