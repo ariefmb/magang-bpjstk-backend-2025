@@ -59,3 +59,7 @@ export const deleteApplicantRepo = async (id: string) => {
 export const getApplicantsByEmailRepo = async (email: string) => {
     return await applicantModel.find({ email: { $regex: email } });
 };
+
+export const getApplicantsToDeleted = async (id: string) => {
+    return await applicantModel.find({ vacancy_id: { $regex: id } });
+};

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import {
+    deleteApplicantRepo,
+    getApplicantsToDeleted,
+} from "../services/applicant.service";
+import {
     calculateQuarter,
     getReqVacancyByIdRepo,
 } from "../services/requestVacancy.service";
@@ -204,6 +208,16 @@ export const deleteVacancyController = async (req: Request, res: Response) => {
     } = req;
 
     try {
+        const applicantsToDelete = await getApplicantsToDeleted(vacancy_id);
+
+        if (applicantsToDelete) {
+            await Promise.all(
+                applicantsToDelete.map(async (applicant) => {
+                    await deleteApplicantRepo(applicant.applicant_id);
+                })
+            );
+        }
+
         const deletedData = await deleteVacancyByIdRepo(vacancy_id);
         if (deletedData) {
             logger.info("Success delete vacancy data");
