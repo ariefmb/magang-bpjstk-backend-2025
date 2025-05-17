@@ -1,11 +1,3 @@
-export interface zoomAssignInterface {
-    zoomAssign_id: string;
-    applicant_id: string;
-    place: string;
-    datetime: Date;
-    link: string;
-}
-
 export interface programTrackerInterface {
     programTracker_id: string;
     vacancy_id: string;
@@ -17,7 +9,7 @@ export interface programTrackerInterface {
         | "work at office"
         | "Work From Home"
         | "work from home";
-    ciry: string;
+    city: string;
     location: string;
     journey:
         | "Administration"
@@ -34,4 +26,25 @@ export interface programTrackerInterface {
     template_logbook: string;
     template_laporan: string;
     link_group: string;
+}
+
+export interface zoomAssignInterface {
+    zoomAssign_id: string;
+    applicant_id: string;
+    place: string;
+    datetime: Date;
+    link: string;
+}
+
+export interface feedbackMentorInterface {
+    feedbackMentor_id: string;
+    applicant_id: string;
+    logbook: string;
+    feedback: string;
+}
+
+export interface certificateMenteeInterface {
+    certificateMentee_id: string;
+    applicant_id: string;
+    certificate: string;
 }
