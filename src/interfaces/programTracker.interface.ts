@@ -4,28 +4,18 @@ export interface programTrackerInterface {
     unit: string;
     mentor_name: string;
     contact: string;
-    working_model:
-        | "Work At Office"
-        | "work at office"
-        | "Work From Home"
-        | "work from home";
+    working_model: "Work At Office" | "work at office" | "Work From Home" | "work from home";
     city: string;
     location: string;
-    journey:
-        | "Administration"
-        | "Interview"
-        | "Offering"
-        | "Confirmation"
-        | "Working Experience"
-        | "Graduation";
+    journey: "Administration" | "Interview" | "Offering" | "Confirmation" | "Working Experience" | "Graduation";
     start_date: Date;
     end_date: Date;
-    onBoarding_date: Date;
-    template_suratPerjanjian: string;
-    template_suratPeminjamanIDCard: string;
-    template_logbook: string;
-    template_laporan: string;
-    link_group: string;
+    onBoarding_date: Date | null | "";
+    template_suratPerjanjian: string | "";
+    template_suratPeminjamanIDCard: string | "";
+    template_logbook: string | "";
+    template_laporan: string | "";
+    link_group: string | "";
 }
 
 export interface zoomAssignInterface {

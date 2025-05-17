@@ -21,18 +21,18 @@ const programTrackerSchema = new mongoose.Schema<programTrackerInterface>(
             enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],
             required: true,
         },
-        start_date: { type: Date, required: true, default: Date.now },
+        start_date: { type: Date, required: true },
         end_date: { type: Date, required: true },
-        onBoarding_date: { type: Date, required: true },
-        template_suratPerjanjian: { type: String, required: true },
-        template_suratPeminjamanIDCard: { type: String, required: true },
-        template_logbook: { type: String, required: true },
-        template_laporan: { type: String, required: true },
-        link_group: { type: String, required: true },
+        onBoarding_date: { type: Date, default: "" },
+        template_suratPerjanjian: { type: String, default: "" },
+        template_suratPeminjamanIDCard: { type: String, default: "" },
+        template_logbook: { type: String, default: "" },
+        template_laporan: { type: String, default: "" },
+        link_group: { type: String, default: "" },
     },
     { timestamps: true }
 );
 
-const programTrackerModel = mongoose.model<programTrackerInterface>("programTracker", programTrackerSchema);
+const programTrackerModel = mongoose.model<programTrackerInterface>("program_tracker", programTrackerSchema);
 
 export default programTrackerModel;
