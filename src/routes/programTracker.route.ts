@@ -1,27 +1,15 @@
 import { Router } from "express";
 import {
-    createAdministrationInterviewController,
+    createProgramTrackerController,
     deleteProgramTrackerController,
     getAllProgramTrackersController,
-    updateAdministrationController,
-    updateOfferingController,
+    updateProgramTrackerController,
 } from "../controllers/programTracker.controller";
 import { authorization } from "../middleware/authorization";
 
 export const ProgramTrackerRouter: Router = Router();
 
+ProgramTrackerRouter.post("/", authorization(["admin"]), createProgramTrackerController);
 ProgramTrackerRouter.get("/", authorization(["admin"]), getAllProgramTrackersController);
+ProgramTrackerRouter.put("/:programTracker_id", authorization(["admin"]), updateProgramTrackerController);
 ProgramTrackerRouter.delete("/:programTracker_id", authorization(["admin"]), deleteProgramTrackerController);
-
-ProgramTrackerRouter.post(
-    "/administration_interview",
-    authorization(["admin"]),
-    createAdministrationInterviewController
-);
-ProgramTrackerRouter.put(
-    "/administration_interview/:programTracker_id",
-    authorization(["admin"]),
-    updateAdministrationController
-);
-
-ProgramTrackerRouter.put("/offering/:programTracker_id", authorization(["admin"]), updateOfferingController);

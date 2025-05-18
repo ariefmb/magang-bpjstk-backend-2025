@@ -18,8 +18,9 @@ const programTrackerSchema = new mongoose.Schema<programTrackerInterface>(
         location: { type: String, required: true },
         journey: {
             type: String,
-            enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],
             required: true,
+            enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],
+            default: "Administration"
         },
         start_date: { type: Date, required: true },
         end_date: { type: Date, required: true },
