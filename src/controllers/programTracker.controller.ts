@@ -4,6 +4,7 @@ import {
     createProgramRepo,
     deleteProgramTrackerRepo,
     getAllProgramTrackersRepo,
+    getProgramTrackerByIdRepo,
     updateProgramRepo,
 } from "../services/programTracker.service";
 import { getVacancyByIdRepo } from "../services/vacancy.service";
@@ -84,6 +85,40 @@ export const getAllProgramTrackersController = async (req: Request, res: Respons
         });
     } catch (error) {
         logger.info(`ERR: program trackers - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getProgramTrackerByIdController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {
+            params: { programTracker_id },
+        } = req;
+        
+        const programTracker = await getProgramTrackerByIdRepo(programTracker_id);
+        if (!programTracker) {
+            logger.info("Program tracker data not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Program tracker data not found!",
+                data: {},
+            });
+            return;
+        }
+        logger.info("Success get program tracker data");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get program tracker data",
+            data: programTracker,
+        });
+    } catch (error) {
+        logger.info(`ERR: program - get by id = ${error}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
