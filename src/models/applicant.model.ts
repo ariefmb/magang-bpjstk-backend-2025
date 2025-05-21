@@ -22,28 +22,21 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
         suratPengantar: { type: String, required: true },
         cv: { type: String, required: true },
         portfolio: { type: String, required: true },
+        no_rekening: { type: String, trim: true, default: "" },
+        surat_kuasa: { type: String, default: "" },
+        nama_bukuRek: { type: String, default: "" },
+        bank: { type: String, default: "" },
+        surat_perjanjian: { type: String, default: "" },
+        suratPeminjaman_idCard: { type: String, default: "" },
         journey: {
             type: String,
-            enum: [
-                "Administration",
-                "Interview",
-                "Offering",
-                "Confirmation",
-                "Working Experience",
-                "Graduation",
-            ],
+            enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],
             default: "Administration",
             required: true,
         },
         status: {
             type: String,
-            enum: [
-                "Approved",
-                "Rejected",
-                "On Going",
-                "Waiting",
-                "Off Boarding",
-            ],
+            enum: ["Approved", "Rejected", "On Going", "Waiting", "Off Boarding"],
             default: "Waiting",
             required: true,
         },
@@ -51,9 +44,6 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
     { timestamps: true }
 );
 
-const applicantModel = mongoose.model<ApplicantInterface>(
-    "applicant",
-    applicantSchema
-);
+const applicantModel = mongoose.model<ApplicantInterface>("applicant", applicantSchema);
 
 export default applicantModel;

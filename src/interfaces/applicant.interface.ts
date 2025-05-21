@@ -13,6 +13,12 @@ export interface ApplicantInterface {
     suratPengantar: string;
     cv: string;
     portfolio: string;
+    no_rekening: string;
+    surat_kuasa: string;
+    nama_bukuRek: string;
+    bank: string;
+    surat_perjanjian: string;
+    suratPeminjaman_idCard: string;
     journey:
         | "Administration"
         | "Interview"
