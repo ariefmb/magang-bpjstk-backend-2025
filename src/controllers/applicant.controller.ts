@@ -12,10 +12,7 @@ import {
 } from "../services/applicant.service";
 import { getVacancyByIdRepo } from "../services/vacancy.service";
 import logger from "../utils/logger";
-import {
-    addApplicantValidation,
-    updateApplicantValidation,
-} from "../validations/applicant.validation";
+import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
 
 export const addApplicantController = async (req: Request, res: Response) => {
     req.body.applicant_id = uuidv4();
@@ -43,9 +40,7 @@ export const addApplicantController = async (req: Request, res: Response) => {
                 const vacancyExist = await getVacancyByIdRepo(value.vacancy_id);
 
                 if (!vacancyExist) {
-                    logger.info(
-                        "ERR: applicant - add = vacancy does not exist"
-                    );
+                    logger.info("ERR: applicant - add = vacancy does not exist");
                     res.status(404).send({
                         status: false,
                         statusCode: 404,
@@ -53,30 +48,21 @@ export const addApplicantController = async (req: Request, res: Response) => {
                     });
                 } else {
                     if (!["Open", "open"].includes(vacancyExist.status)) {
-                        logger.info(
-                            "ERR: applicant - add = vacancy does not open"
-                        );
+                        logger.info("ERR: applicant - add = vacancy does not open");
                         res.status(422).send({
                             status: false,
                             statusCode: 422,
                             message: "vacancy does not open",
                         });
                     } else {
-                        const applicantsExist = await getApplicantsByEmailRepo(
-                            value.email
-                        );
+                        const applicantsExist = await getApplicantsByEmailRepo(value.email);
 
                         const hasOnGoingProgram = applicantsExist.some(
-                            (applicant) =>
-                                !["Off Boarding", "Rejected"].includes(
-                                    applicant.status
-                                )
+                            (applicant) => !["Off Boarding", "Rejected"].includes(applicant.status)
                         );
 
                         if (hasOnGoingProgram) {
-                            logger.info(
-                                "ERR: applicant - add = applicant has on going program"
-                            );
+                            logger.info("ERR: applicant - add = applicant has on going program");
                             res.status(422).send({
                                 status: false,
                                 statusCode: 422,
@@ -89,23 +75,10 @@ export const addApplicantController = async (req: Request, res: Response) => {
 
                             const applicantDataMapper = {
                                 ...value,
-                                photo: await uploadAndDelete(files.photo[0], [
-                                    "jpg",
-                                    "jpeg",
-                                    "png",
-                                ]),
-                                suratPengantar: await uploadAndDelete(
-                                    files.suratPengantar[0],
-                                    ["pdf", "docx"]
-                                ),
-                                cv: await uploadAndDelete(files.cv[0], [
-                                    "pdf",
-                                    "docx",
-                                ]),
-                                portfolio: await uploadAndDelete(
-                                    files.portfolio[0],
-                                    ["pdf", "docx"]
-                                ),
+                                photo: await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]),
+                                suratPengantar: await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]),
+                                cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
+                                portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
                             };
 
                             await addApplicantRepo(applicantDataMapper);
@@ -131,18 +104,13 @@ export const addApplicantController = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllApplicantsController = async (
-    req: Request,
-    res: Response
-) => {
+export const getAllApplicantsController = async (req: Request, res: Response) => {
     try {
         const {
             query: { name },
         } = req;
 
-        const applicants = name
-            ? await searchApplicantsRepo(name.toString())
-            : await getApplicantsRepo();
+        const applicants = name ? await searchApplicantsRepo(name.toString()) : await getApplicantsRepo();
 
         if (applicants) {
             logger.info("Success get all applicants data");
@@ -171,10 +139,7 @@ export const getAllApplicantsController = async (
     }
 };
 
-export const getApplicantByIdController = async (
-    req: Request,
-    res: Response
-) => {
+export const getApplicantByIdController = async (req: Request, res: Response) => {
     try {
         const {
             params: { applicant_id },
@@ -208,117 +173,84 @@ export const getApplicantByIdController = async (
     }
 };
 
-export const updateApplicantController = async (
-    req: Request,
-    res: Response
-) => {
+export const updateApplicantController = async (req: Request, res: Response): Promise<void> => {
     const {
         params: { applicant_id },
     } = req;
-    const { error, value } = updateApplicantValidation(req.body);
+    const { error, value } = updateApplicantValidation(req.body, req.body.journey);
 
     if (error) {
-        logger.info(
-            `ERR JOI: applicant - update = ${error.details[0].message}`
-        );
+        logger.info(`ERR: applicant - update = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
             message: error.details[0].message,
         });
-    } else {
-        try {
-            const user = res.locals.user;
-            const userApplicant = await getApplicantByIdRepo(applicant_id);
+        return;
+    }
 
-            if (userApplicant) {
-                if (
-                    user._doc.email !== userApplicant.email &&
-                    user._doc.role !== "admin"
-                ) {
-                    logger.info(
-                        "ERR: applicant - update = this user have no access"
-                    );
-                    res.status(422).send({
-                        status: false,
-                        statusCode: 422,
-                        message: "this user have no access",
-                    });
-                } else {
-                    const files = req.files as {
-                        [fieldname: string]: Express.Multer.File[];
-                    };
+    try {
+        const user = res.locals.user;
 
-                    const applicantDataMapper = {
-                        ...value,
-                    };
-
-                    if (files.photo?.[0])
-                        applicantDataMapper.photo = await uploadAndDelete(
-                            files.photo[0],
-                            ["jpg", "jpeg", "png"]
-                        );
-                    if (files.suratPengantar?.[0])
-                        applicantDataMapper.suratPengantar =
-                            await uploadAndDelete(files.suratPengantar[0], [
-                                "pdf",
-                                "docx",
-                            ]);
-                    if (files.cv?.[0])
-                        applicantDataMapper.cv = await uploadAndDelete(
-                            files.cv[0],
-                            ["pdf", "docx"]
-                        );
-                    if (files.portfolio?.[0])
-                        applicantDataMapper.portfolio = await uploadAndDelete(
-                            files.portfolio[0],
-                            ["pdf", "docx"]
-                        );
-
-                    const updateData = await updateApplicantRepo(
-                        applicant_id,
-                        applicantDataMapper
-                    );
-
-                    if (updateData) {
-                        logger.info("Success update applicant data");
-                        res.status(200).send({
-                            status: true,
-                            statusCode: 200,
-                            message: "Success update applicant data",
-                        });
-                    } else {
-                        logger.info("Applicant data not found!");
-                        res.status(404).send({
-                            status: false,
-                            statusCode: 404,
-                            message: "Applicant data not found!",
-                        });
-                    }
-                }
-            } else {
-                logger.info("Applicant data not found!");
-                res.status(404).send({
-                    status: false,
-                    statusCode: 404,
-                    message: "Applicant data not found!",
-                });
-            }
-        } catch (error) {
-            logger.error(`ERR: applicant - update = ${error}`);
+        if (user._doc.email !== value.email && user._doc.role !== "admin") {
+            logger.info("ERR: applicant - update = this user have no access");
             res.status(422).send({
                 status: false,
                 statusCode: 422,
-                message: error,
+                message: "this user have no access",
             });
+            return;
         }
+
+        const files = req.files as {
+            [fieldname: string]: Express.Multer.File[];
+        };
+
+        const applicantDataMapper = {
+            ...value,
+        };
+
+        if (files.photo?.[0]) applicantDataMapper.photo = await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]);
+        if (files.suratPengantar?.[0])
+            applicantDataMapper.suratPengantar = await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]);
+        if (files.cv?.[0]) applicantDataMapper.cv = await uploadAndDelete(files.cv[0], ["pdf", "docx"]);
+        if (files.portfolio?.[0])
+            applicantDataMapper.portfolio = await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]);
+        if (files.surat_kuasa?.[0]) applicantDataMapper.surat_kuasa = await uploadAndDelete(files.surat_kuasa[0], ["pdf", "docx"]);
+        if (files.surat_perjanjian?.[0])
+            applicantDataMapper.surat_perjanjian = await uploadAndDelete(files.surat_perjanjian[0], ["pdf", "docx"]);
+        if (files.suratPeminjaman_idCard?.[0])
+            applicantDataMapper.suratPeminjaman_idCard = await uploadAndDelete(files.suratPeminjaman_idCard[0], ["pdf", "docx"]);
+
+        const updateData = await updateApplicantRepo(applicant_id, applicantDataMapper);
+
+        if (!updateData) {
+            logger.info("Applicant data not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Applicant data not found!",
+            });
+            return;
+        }
+
+        logger.info("Success update applicant data");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success update applicant data",
+        });
+    } catch (error) {
+        logger.error(`ERR: applicant - update = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
 
-export const deleteApplicantController = async (
-    req: Request,
-    res: Response
-) => {
+export const deleteApplicantController = async (req: Request, res: Response) => {
     const {
         params: { applicant_id },
     } = req;

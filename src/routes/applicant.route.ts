@@ -22,21 +22,9 @@ ApplicantRouter.post(
     ]),
     addApplicantController
 );
-ApplicantRouter.get(
-    "/",
-    authorization(["admin", "mentor"]),
-    getAllApplicantsController
-);
-ApplicantRouter.get(
-    "/search",
-    authorization(["admin", "mentor"]),
-    getAllApplicantsController
-);
-ApplicantRouter.get(
-    "/:applicant_id",
-    authorization(["admin", "mentor"]),
-    getApplicantByIdController
-);
+ApplicantRouter.get("/", authorization(["admin", "mentor"]), getAllApplicantsController);
+ApplicantRouter.get("/search", authorization(["admin", "mentor"]), getAllApplicantsController);
+ApplicantRouter.get("/:applicant_id", authorization(["admin", "mentor"]), getApplicantByIdController);
 ApplicantRouter.put(
     "/:applicant_id",
     authorization(["admin", "mentee"]),
@@ -45,11 +33,10 @@ ApplicantRouter.put(
         { name: "suratPengantar", maxCount: 1 },
         { name: "cv", maxCount: 1 },
         { name: "portfolio", maxCount: 1 },
+        { name: "surat_kuasa", maxCount: 1 },
+        { name: "surat_perjanjian", maxCount: 1 },
+        { name: "suratPeminjaman_idCard", maxCount: 1 },
     ]),
     updateApplicantController
 );
-ApplicantRouter.delete(
-    "/:applicant_id",
-    authorization(["admin"]),
-    deleteApplicantController
-);
+ApplicantRouter.delete("/:applicant_id", authorization(["admin"]), deleteApplicantController);

@@ -20,7 +20,7 @@ const programTrackerSchema = new mongoose.Schema<programTrackerInterface>(
             type: String,
             required: true,
             enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],
-            default: "Administration"
+            default: "Administration",
         },
         start_date: { type: Date, required: true },
         end_date: { type: Date, required: true },

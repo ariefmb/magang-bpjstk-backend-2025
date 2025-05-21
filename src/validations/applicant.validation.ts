@@ -14,52 +14,49 @@ export const addApplicantValidation = (payload: ApplicantInterface) => {
         semester: Joi.number().default(1).required(),
         no_suratPengantar: Joi.string().required(),
         journey: Joi.string()
-            .valid(
-                "Administration",
-                "Interview",
-                "Offering",
-                "Confirmation",
-                "Working Experience",
-                "Graduation"
-            )
+            .valid("Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation")
             .default("Administration"),
-        status: Joi.string()
-            .valid(
-                "Approved",
-                "Rejected",
-                "On Going",
-                "Waiting",
-                "Off Boarding"
-            )
-            .default("Waiting"),
+        status: Joi.string().valid("Approved", "Rejected", "On Going", "Waiting", "Off Boarding").default("Waiting"),
     });
 
     return Schema.validate(payload);
 };
 
-export const updateApplicantValidation = (payload: ApplicantInterface) => {
+const baseSchema = {
+    name: Joi.string().trim(),
+    nik: Joi.string().trim(),
+    email: Joi.string().email().lowercase().trim(),
+    contact: Joi.string(),
+    institution: Joi.string(),
+    major: Joi.string(),
+    semester: Joi.number().default(1),
+    no_suratPengantar: Joi.string(),
+    journey: Joi.string()
+        .valid("Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation")
+        .default("Administration"),
+    status: Joi.string().valid("Approved", "Rejected", "On Going", "Waiting").default("Waiting"),
+};
+
+export const updateApplicantValidation = (payload: ApplicantInterface, journey?: string) => {
+    let additionalSchema = {};
+
+    if (journey === "Confirmation") {
+        additionalSchema = {
+            no_rekening: Joi.string().trim().required(),
+            nama_bukuRek: Joi.string().required(),
+            bank: Joi.string().required(),
+        };
+    } else {
+        additionalSchema = {
+            no_rekening: Joi.string().trim(),
+            nama_bukuRek: Joi.string(),
+            bank: Joi.string(),
+        };
+    }
+
     const Schema = Joi.object({
-        name: Joi.string().trim(),
-        nik: Joi.string().trim(),
-        email: Joi.string().email().lowercase().trim(),
-        contact: Joi.string(),
-        institution: Joi.string(),
-        major: Joi.string(),
-        semester: Joi.number().default(1),
-        no_suratPengantar: Joi.string(),
-        journey: Joi.string()
-            .valid(
-                "Administration",
-                "Interview",
-                "Offering",
-                "Confirmation",
-                "Working Experience",
-                "Graduation"
-            )
-            .default("Administration"),
-        status: Joi.string()
-            .valid("Approved", "Rejected", "On Going", "Waiting")
-            .default("Waiting"),
+        ...baseSchema,
+        ...additionalSchema,
     });
 
     return Schema.validate(payload);
