@@ -1,3 +1,5 @@
+import cron from "node-cron";
+import logger from "src/utils/logger";
 import { v4 as uuidv4 } from "uuid";
 import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
@@ -16,61 +18,21 @@ export const getVacancyByIdRepo = async (id: string) => {
     return await vacancyModel.findOne({ vacancy_id: id });
 };
 
-export const getAndUpdateStatusVacancy = (openDate: Date, closeDate: Date) => {
-    const thisTime: Date = new Date();
-
-    if (openDate <= thisTime) {
-        return closeDate < thisTime ? "Closed" : "Open";
-    }
-    return "Pending";
-};
-
-export const updateStatusVacancy = async (id?: string) => {
-    let statusNow: String = "Pending";
+cron.schedule("0 0 * * *", async () => {
+    const now = new Date();
 
     try {
-        if (id) {
-            const vacancy = await vacancyModel.findOne({ vacancy_id: id });
+        await vacancyModel.updateMany({ status: "Pending", open_vacancy: { $lte: now } }, { $set: { status: "Open" } });
+        await vacancyModel.updateMany({ status: "Open", close_vacanncy: { $lt: now } }, { $set: { status: "Closed" } });
 
-            if (vacancy) {
-                statusNow = getAndUpdateStatusVacancy(
-                    vacancy.open_vacancy,
-                    vacancy.close_vacancy
-                );
-
-                await vacancyModel.findOneAndUpdate(
-                    { vacancy_id: id },
-                    { status: statusNow }
-                );
-            }
-        } else {
-            const vacancies = await vacancyModel.find();
-
-            for (const vacancy of vacancies) {
-                statusNow = getAndUpdateStatusVacancy(
-                    vacancy.open_vacancy,
-                    vacancy.close_vacancy
-                );
-
-                await vacancyModel.findOneAndUpdate(
-                    { vacancy_id: vacancy.vacancy_id },
-                    { status: statusNow }
-                );
-            }
-        }
+        logger.info(`[CRON] updated report(s) to "Overdue".`);
     } catch (error) {
-        throw new Error(error instanceof Error ? error.message : String(error));
+        logger.info(`[CRON ERROR] Failed to update status to Overdue ${error}`);
     }
-};
+});
 
-export const updateVacancyByIdRepo = async (
-    id: string,
-    payload: VacancyInterface
-) => {
-    return await vacancyModel.findOneAndUpdate(
-        { vacancy_id: id },
-        { $set: payload }
-    );
+export const updateVacancyByIdRepo = async (id: string, payload: VacancyInterface) => {
+    return await vacancyModel.findOneAndUpdate({ vacancy_id: id }, { $set: payload });
 };
 
 export const deleteVacancyByIdRepo = async (id: string) => {
@@ -86,19 +48,20 @@ export const calculateQuarter = (date: Date) => {
     return Math.ceil(month / 3);
 };
 
-export const approvalVacancyRepo = async (
-    id: string,
-    payload: requestVacancyInterface
-) => {
-    return await reqVacancyModel.findOneAndUpdate(
-        { reqVacancy_id: id },
-        { $set: payload }
-    );
+export const approvalVacancyRepo = async (id: string, payload: requestVacancyInterface) => {
+    return await reqVacancyModel.findOneAndUpdate({ reqVacancy_id: id }, { $set: payload });
 };
 
-export const createVacancyApprovedRepo = async (
-    payload: requestVacancyInterface
-) => {
+export const getStatusVacancy = (openDate: Date, closeDate: Date) => {
+    const thisTime: Date = new Date();
+
+    if (openDate <= thisTime) {
+        return closeDate < thisTime ? "Closed" : "Open";
+    }
+    return "Pending";
+};
+
+export const createVacancyApprovedRepo = async (payload: requestVacancyInterface) => {
     const {
         title,
         unit,
@@ -115,13 +78,13 @@ export const createVacancyApprovedRepo = async (
         quotaGiven,
     } = payload;
 
-    const newstatus = getAndUpdateStatusVacancy(open_vacancy, close_vacancy);
+    const newStatus = getStatusVacancy(open_vacancy, close_vacancy);
     const newVacancyId = uuidv4();
 
     const newVacancyDataMapper: VacancyInterface = {
         vacancy_id: newVacancyId,
         title: title,
-        status: newstatus,
+        status: newStatus,
         unit: unit,
         mentor_name: mentor_name,
         contact: contact,

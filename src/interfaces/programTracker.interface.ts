@@ -26,11 +26,14 @@ export interface zoomAssignInterface {
     link: string;
 }
 
-export interface feedbackMentorInterface {
+export interface reportMenteeInterface {
     feedbackMentor_id: string;
     applicant_id: string;
+    vacancy_id: string;
     logbook: string;
-    feedback: string;
+    feedback_mentee: string;
+    status: "Submitted" | "Overdue" | "Waiting";
+    feedback_mentor: string[];
 }
 
 export interface certificateMenteeInterface {

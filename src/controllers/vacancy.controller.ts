@@ -1,23 +1,16 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import {
-    deleteApplicantRepo,
-    getApplicantsToDeleted,
-} from "../services/applicant.service";
-import {
-    calculateQuarter,
-    getReqVacancyByIdRepo,
-} from "../services/requestVacancy.service";
+import { deleteApplicantRepo, getApplicantsToDeleted } from "../services/applicant.service";
+import { calculateQuarter, getReqVacancyByIdRepo } from "../services/requestVacancy.service";
 import {
     approvalVacancyRepo,
     createVacancyApprovedRepo,
     createVacancyRepo,
     deleteVacancyByIdRepo,
-    getAndUpdateStatusVacancy,
+    getStatusVacancy,
     getVacanciesRepo,
     getVacancyByIdRepo,
     searchVacancyRepo,
-    updateStatusVacancy,
     updateVacancyByIdRepo,
 } from "../services/vacancy.service";
 import logger from "../utils/logger";
@@ -44,11 +37,7 @@ export const createVacancyController = async (req: Request, res: Response) => {
             closingDate.setHours(23, 59, 59, 999);
             value.close_vacancy = closingDate;
 
-            value.status = getAndUpdateStatusVacancy(
-                value.open_vacancy,
-                value.close_vacancy
-            );
-
+            value.status = getStatusVacancy(value.open_vacancy, value.close_vacancy);
             value.tw = calculateQuarter(value.close_vacancy);
 
             await createVacancyRepo(value);
@@ -76,9 +65,7 @@ export const getVacanciesController = async (req: Request, res: Response) => {
             query: { title },
         } = req;
 
-        const vacancies = title
-            ? await searchVacancyRepo(title.toString())
-            : await getVacanciesRepo();
+        const vacancies = title ? await searchVacancyRepo(title.toString()) : await getVacanciesRepo();
 
         if (vacancies) {
             logger.info("Success get all vacancies data");
@@ -113,7 +100,6 @@ export const getVacancyByIdController = async (req: Request, res: Response) => {
             params: { vacancy_id },
         } = req;
 
-        await updateStatusVacancy(vacancy_id);
         const vacancy = await getVacancyByIdRepo(vacancy_id);
 
         if (vacancy) {
@@ -167,10 +153,7 @@ export const updateVacancyController = async (req: Request, res: Response) => {
             const data = await getVacancyByIdRepo(vacancy_id);
 
             if (data) {
-                value.status = getAndUpdateStatusVacancy(
-                    data.open_vacancy,
-                    data.close_vacancy
-                );
+                value.status = getStatusVacancy(data.open_vacancy, data.close_vacancy);
                 value.tw = calculateQuarter(data.close_vacancy);
             }
 
@@ -244,10 +227,7 @@ export const deleteVacancyController = async (req: Request, res: Response) => {
     }
 };
 
-export const approvalReqVacancyController = async (
-    req: Request,
-    res: Response
-) => {
+export const approvalReqVacancyController = async (req: Request, res: Response) => {
     const {
         params: { reqVacancy_id },
     } = req;
@@ -266,23 +246,13 @@ export const approvalReqVacancyController = async (
                 const closingDate = new Date(value.close_vacancy);
                 closingDate.setHours(23, 59, 59, 999);
                 value.close_vacancy = closingDate;
-
-                value.status = getAndUpdateStatusVacancy(
-                    value.open_vacancy,
-                    value.close_vacancy
-                );
             }
 
             const updateData = await approvalVacancyRepo(reqVacancy_id, value);
 
             if (updateData) {
-                if (
-                    value.status === "Approved" ||
-                    value.status === "approved"
-                ) {
-                    const newVacancyData = await getReqVacancyByIdRepo(
-                        reqVacancy_id
-                    );
+                if (value.status === "Approved" || value.status === "approved") {
+                    const newVacancyData = await getReqVacancyByIdRepo(reqVacancy_id);
 
                     if (newVacancyData) {
                         await createVacancyApprovedRepo(newVacancyData);
@@ -302,10 +272,7 @@ export const approvalReqVacancyController = async (
                         });
                     }
                 }
-                if (
-                    value.status === "Rejected" ||
-                    value.status === "rejected"
-                ) {
+                if (value.status === "Rejected" || value.status === "rejected") {
                     logger.info("Success rejected requested vacancy");
                     res.status(200).send({
                         status: true,

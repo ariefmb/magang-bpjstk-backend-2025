@@ -6,8 +6,8 @@ export interface VacancyInterface {
     mentor_name: string;
     contact: string;
     position: string;
-    quota: number;
     tw: number;
+    quota: number;
     duration: number;
     city: string;
     working_model:
