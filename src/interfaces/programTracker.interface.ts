@@ -17,27 +17,3 @@ export interface programTrackerInterface {
     template_laporan: string | "";
     link_group: string | "";
 }
-
-export interface zoomAssignInterface {
-    zoomAssign_id: string;
-    applicant_id: string;
-    place: string;
-    datetime: Date;
-    link: string;
-}
-
-export interface reportMenteeInterface {
-    feedbackMentor_id: string;
-    applicant_id: string;
-    vacancy_id: string;
-    logbook: string;
-    feedback_mentee: string;
-    status: "Submitted" | "Overdue" | "Waiting";
-    feedback_mentor: string[];
-}
-
-export interface certificateMenteeInterface {
-    certificateMentee_id: string;
-    applicant_id: string;
-    certificate: string;
-}

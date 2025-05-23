@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import logger from "src/utils/logger";
+import logger from "../utils/logger";
 import { v4 as uuidv4 } from "uuid";
 import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";

@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { getManyApplicantsByIdVacancy } from "../services/applicant.service";
+import { reportMenteeRepo } from "../services/journey services/reportMentee.service";
 import {
     createProgramRepo,
     deleteProgramTrackerRepo,
@@ -98,7 +100,7 @@ export const getProgramTrackerByIdController = async (req: Request, res: Respons
         const {
             params: { programTracker_id },
         } = req;
-        
+
         const programTracker = await getProgramTrackerByIdRepo(programTracker_id);
         if (!programTracker) {
             logger.info("Program tracker data not found!");
@@ -159,11 +161,63 @@ export const updateProgramTrackerController = async (req: Request, res: Response
             return;
         }
 
+        const programData = await getProgramTrackerByIdRepo(updatedData.programTracker_id);
+
+        if (programData && value.journey && value.journey === "Working Experience") {
+            const vacancy: any = await getVacancyByIdRepo(programData.vacancy_id);
+            const mentees: any = await getManyApplicantsByIdVacancy(programData.vacancy_id);
+            if (!vacancy) {
+                logger.info(`vacancy not found`);
+            }
+            if (!mentees) {
+                logger.info(`mentees not found`);
+            }
+            console.log(`vacancy: ${vacancy}`);
+            console.log(`mentees: ${mentees}`);
+            
+            logger.info(`vacancy and mentees exist`);
+            await Promise.all(
+                mentees.map(async (mentee: any) => {
+                    for (let i = 0; i < vacancy.duration; i++) {
+                        const reportMenteeAssign = {
+                            reportMentee_id: uuidv4(),
+                            vacancy_id: updatedData.vacancy_id,
+                            applicant_id: mentee.applicant_id,
+                            title: `Logbook bulan ke-${i + 1}`,
+                            report: "",
+                            feedback_mentee: "",
+                            feedback_to_mentor: "",
+                            status: "Waiting",
+                            feedback_mentor: [],
+                        };
+
+                        await reportMenteeRepo(reportMenteeAssign);
+                        logger.info(`Success create report ${i}(st/nd/th) assignment`);
+                    }
+                    const finalReportMenteeAssign = {
+                        reportMentee_id: uuidv4(),
+                        vacancy_id: updatedData.vacancy_id,
+                        applicant_id: mentee.applicant_id,
+                        title: "Laporan Akhir Magang",
+                        report: "",
+                        feedback_mentee: "",
+                        feedback_to_mentor: "",
+                        status: "Waiting",
+                        feedback_mentor: [],
+                    };
+
+                    await reportMenteeRepo(finalReportMenteeAssign);
+                    logger.info(`Success create final report assignment`);
+                })
+            );
+        }
+
         logger.info("Success update program journey");
         res.status(200).send({
             status: true,
             statusCode: 200,
             message: "Success update program journey",
+            data: programData,
         });
     } catch (error) {
         logger.info(`ERR: program - update = ${error}`);

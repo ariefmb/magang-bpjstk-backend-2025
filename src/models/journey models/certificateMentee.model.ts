@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { certificateMenteeInterface } from "../interfaces/programTracker.interface";
+import { certificateMenteeInterface } from "../../interfaces/journeySetting.interface";
 
 const certificateMenteeSchema = new mongoose.Schema<certificateMenteeInterface>(
     {
         certificateMentee_id: { type: String, required: true, unique: true },
-        applicant_id: { type: String, required: true },
+        vacancy_id: { type: String, ref: "vacancy", required: true },
+        applicant_id: { type: String, ref: "applicant", required: true },
         certificate: { type: String, required: true },
     },
     { timestamps: true }

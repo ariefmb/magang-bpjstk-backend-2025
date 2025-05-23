@@ -140,10 +140,11 @@ export const getAllApplicantsController = async (req: Request, res: Response) =>
 };
 
 export const getApplicantByIdController = async (req: Request, res: Response) => {
+    const {
+        params: { applicant_id },
+    } = req;
+
     try {
-        const {
-            params: { applicant_id },
-        } = req;
         const applicant = await getApplicantByIdRepo(applicant_id);
 
         if (applicant) {
@@ -216,11 +217,15 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
         if (files.cv?.[0]) applicantDataMapper.cv = await uploadAndDelete(files.cv[0], ["pdf", "docx"]);
         if (files.portfolio?.[0])
             applicantDataMapper.portfolio = await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]);
-        if (files.surat_kuasa?.[0]) applicantDataMapper.surat_kuasa = await uploadAndDelete(files.surat_kuasa[0], ["pdf", "docx"]);
+        if (files.surat_kuasa?.[0])
+            applicantDataMapper.surat_kuasa = await uploadAndDelete(files.surat_kuasa[0], ["pdf", "docx"]);
         if (files.surat_perjanjian?.[0])
             applicantDataMapper.surat_perjanjian = await uploadAndDelete(files.surat_perjanjian[0], ["pdf", "docx"]);
         if (files.suratPeminjaman_idCard?.[0])
-            applicantDataMapper.suratPeminjaman_idCard = await uploadAndDelete(files.suratPeminjaman_idCard[0], ["pdf", "docx"]);
+            applicantDataMapper.suratPeminjaman_idCard = await uploadAndDelete(files.suratPeminjaman_idCard[0], [
+                "pdf",
+                "docx",
+            ]);
 
         const updateData = await updateApplicantRepo(applicant_id, applicantDataMapper);
 

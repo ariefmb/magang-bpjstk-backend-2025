@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import reportMenteeModel from "../models/feedbackMentor.model";
 import { programTrackerInterface } from "../interfaces/programTracker.interface";
+import reportMenteeModel from "../models/journey models/reportMentee.model";
 import programTrackerModel from "../models/programTracker.model";
 import logger from "../utils/logger";
 
@@ -32,9 +32,9 @@ cron.schedule("0 0 * * *", async () => {
         try {
             const result = await reportMenteeModel.updateMany({ status: "Waiting" }, { $set: { status: "Overdue" } });
 
-            logger.info(`[CRON] updated ${result.modifiedCount} report(s) to "Overdue".`)
+            logger.info(`[CRON] updated ${result.modifiedCount} report(s) to "Overdue".`);
         } catch (error) {
-            logger.info(`[CRON ERROR] Failed to update status to Overdue ${error}`)
+            logger.info(`[CRON ERROR] Failed to update status to Overdue ${error}`);
         }
     }
 });

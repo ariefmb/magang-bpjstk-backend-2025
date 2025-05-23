@@ -36,6 +36,10 @@ export const getApplicantByIdRepo = async (id: string) => {
     return await applicantModel.findOne({ applicant_id: id });
 };
 
+export const getManyApplicantsByIdVacancy = async (id: string) => {
+    return await applicantModel.find({ vacancy_id: id });
+};
+
 export const searchApplicantsRepo = async (name: string) => {
     return await applicantModel.find({
         name: { $regex: name, $options: "i" },

@@ -7,14 +7,14 @@ import {
     updateApplicantController,
 } from "../controllers/applicant.controller";
 import { authorization } from "../middleware/authorization";
-import { uploadApplicantFiles } from "../middleware/uploadFile";
+import { uploadFiles } from "../middleware/uploadFile";
 
 export const ApplicantRouter: Router = Router();
 
 ApplicantRouter.post(
     "/",
     authorization(["mentee"]),
-    uploadApplicantFiles.fields([
+    uploadFiles.fields([
         { name: "photo", maxCount: 1 },
         { name: "suratPengantar", maxCount: 1 },
         { name: "cv", maxCount: 1 },
@@ -28,7 +28,7 @@ ApplicantRouter.get("/:applicant_id", authorization(["admin", "mentor"]), getApp
 ApplicantRouter.put(
     "/:applicant_id",
     authorization(["admin", "mentee"]),
-    uploadApplicantFiles.fields([
+    uploadFiles.fields([
         { name: "photo", maxCount: 1 },
         { name: "suratPengantar", maxCount: 1 },
         { name: "cv", maxCount: 1 },

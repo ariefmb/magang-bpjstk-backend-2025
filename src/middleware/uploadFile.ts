@@ -19,4 +19,4 @@ const storage = multer.diskStorage({
     },
 });
 
-export const uploadApplicantFiles = multer({ storage });
+export const uploadFiles = multer({ storage });
