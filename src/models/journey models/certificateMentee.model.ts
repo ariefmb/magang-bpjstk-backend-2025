@@ -8,9 +8,9 @@ const certificateMenteeSchema = new mongoose.Schema<certificateMenteeInterface>(
             required: true,
             unique: true,
         },
-        vacancy_id: {
+        program_id: {
             type: String,
-            ref: "vacancy",
+            ref: "program",
             required: true,
         },
         applicant_id: {

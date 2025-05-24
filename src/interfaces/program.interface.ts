@@ -16,11 +16,11 @@ export interface ProgramInterface {
     journey: string;
     start_date: Date;
     end_date: Date;
+    description?: string | "";
     onBoarding_date?: Date | "";
-    description?: string;
     template_suratPerjanjian?: string;
     template_suratPeminjamanIDCard?: string;
     template_logbook?: string;
-    template_laporan?: string;
+    template_finalReport?: string;
     link_group?: string;
 }

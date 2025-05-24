@@ -1,6 +1,6 @@
 export interface zoomAssignInterface {
     zoomAssign_id: string;
-    vacancy_id: string;
+    program_id: string;
     applicant_id: string;
     place: string;
     datetime: Date;
@@ -9,7 +9,7 @@ export interface zoomAssignInterface {
 
 export interface reportMenteeInterface {
     reportMentee_id: string;
-    vacancy_id: string;
+    program_id: string;
     applicant_id: string;
     title: string;
     report: string;
@@ -21,7 +21,7 @@ export interface reportMenteeInterface {
 
 export interface certificateMenteeInterface {
     certificateMentee_id: string;
-    vacancy_id: string;
+    program_id: string;
     applicant_id: string;
     certificate: string;
 }

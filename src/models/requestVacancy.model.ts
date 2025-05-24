@@ -29,6 +29,12 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
             required: true,
             trim: true,
         },
+        mentor_email: {
+            type: String,
+            required: true,
+            lowercase: true,
+            trim: true,
+        },
         contact: {
             type: String,
             required: true,
@@ -54,6 +60,10 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
             default: 1,
         },
         city: {
+            type: String,
+            required: true,
+        },
+        location: {
             type: String,
             required: true,
         },

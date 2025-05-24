@@ -8,9 +8,9 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
             required: true,
             unique: true,
         },
-        vacancy_id: {
+        program_id: {
             type: String,
-            ref: "vacancy",
+            ref: "program",
             required: true,
             unique: true,
         },

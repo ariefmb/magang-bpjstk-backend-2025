@@ -14,7 +14,7 @@ export const getApplicantByIdRepo = async (id: string) => {
 };
 
 export const getManyApplicantsByIdVacancy = async (id: string) => {
-    return await applicantModel.find({ vacancy_id: id });
+    return await applicantModel.find({ program_id: id });
 };
 
 export const searchApplicantsRepo = async (name: string) => {
@@ -36,5 +36,5 @@ export const getApplicantsByEmailRepo = async (email: string) => {
 };
 
 export const getApplicantsToDeleted = async (id: string) => {
-    return await applicantModel.find({ vacancy_id: { $regex: id } });
+    return await applicantModel.find({ program_id: { $regex: id } });
 };

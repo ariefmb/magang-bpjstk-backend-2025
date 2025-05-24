@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { deleteApplicantRepo, getApplicantsToDeleted } from "../services/applicant.service";
 import { createProgramRepo, updateProgramRepoByIdVacancy } from "../services/programTracker.service";
-import { calculateQuarter, getReqVacancyByIdRepo, updateReqVacancyRepo } from "../services/requestVacancy.service";
+import { getReqVacancyByIdRepo, updateReqVacancyRepo } from "../services/requestVacancy.service";
 import {
     createVacancyApprovedRepo,
     createVacancyRepo,
     deleteVacancyByIdRepo,
-    getStatusVacancy,
+    getStatusProgram,
     getVacanciesRepo,
     getVacancyByIdRepo,
     searchVacancyRepo,
@@ -19,6 +19,7 @@ import {
     createVacancyValidation,
     updateVacancyValidation,
 } from "../validations/vacancy.validation";
+import { calculateQuarter } from "src/utils/calculateQuarter";
 
 export const createVacancyController = async (req: Request, res: Response): Promise<void> => {
     req.body.vacancy_id = uuidv4();
@@ -37,7 +38,7 @@ export const createVacancyController = async (req: Request, res: Response): Prom
             closingDate.setHours(23, 59, 59, 999);
             value.close_vacancy = closingDate;
 
-            value.status = getStatusVacancy(value.open_vacancy, value.close_vacancy);
+            value.status = getStatusProgram(value.open_vacancy, value.close_vacancy);
             value.tw = calculateQuarter(value.close_vacancy);
 
             await createVacancyRepo(value);
@@ -180,7 +181,7 @@ export const updateVacancyController = async (req: Request, res: Response): Prom
             const data = await getVacancyByIdRepo(vacancy_id);
 
             if (data) {
-                value.status = getStatusVacancy(data.open_vacancy, data.close_vacancy);
+                value.status = getStatusProgram(data.open_vacancy, data.close_vacancy);
                 value.tw = calculateQuarter(data.close_vacancy);
             }
 

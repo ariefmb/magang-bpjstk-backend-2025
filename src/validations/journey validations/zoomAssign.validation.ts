@@ -4,7 +4,7 @@ import { zoomAssignInterface } from "../../interfaces/journeySetting.interface";
 export const assignZoomValidation = (payload: zoomAssignInterface) => {
     const Schema = Joi.object({
         zoomAssign_id: Joi.string().required(),
-        vacancy_id: Joi.string().required(),
+        program_id: Joi.string().required(),
         applicant_id: Joi.string().required(),
         place: Joi.string().required(),
         datetime: Joi.date().required(),

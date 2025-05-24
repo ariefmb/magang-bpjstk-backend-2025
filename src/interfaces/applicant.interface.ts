@@ -1,6 +1,6 @@
 export interface ApplicantInterface {
     applicant_id: string;
-    vacancy_id: string;
+    program_id: string;
     name: string;
     nik: string;
     email: string;

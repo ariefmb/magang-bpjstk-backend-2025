@@ -8,9 +8,9 @@ const reportMenteeSchema = new mongoose.Schema<reportMenteeInterface>(
             required: true,
             unique: true,
         },
-        vacancy_id: {
+        program_id: {
             type: String,
-            ref: "vacancy",
+            ref: "program",
             required: true,
         },
         applicant_id: {

@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { ProgramInterface } from "src/interfaces/vacancy.interface";
+import { ProgramInterface } from "src/interfaces/program.interface";
 import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import vacancyModel from "../models/vacancy.model";
 import logger from "../utils/logger";
@@ -73,12 +73,7 @@ export const searchVacancyRepo = async (title: string) => {
     return await vacancyModel.find({ title: { $regex: title, $options: "i" } });
 };
 
-export const calculateQuarter = (date: Date) => {
-    const month = date.getMonth();
-    return Math.ceil(month / 3);
-};
-
-export const getStatusVacancy = (openDate: Date, closeDate: Date) => {
+export const getStatusProgram = (openDate: Date, closeDate: Date) => {
     const thisTime: Date = new Date();
 
     if (openDate <= thisTime) {
@@ -104,7 +99,7 @@ export const createVacancyApprovedRepo = async (payload: requestVacancyInterface
         description,
     } = payload;
 
-    const newStatus = getStatusVacancy(open_vacancy, close_vacancy);
+    const newStatus = getStatusProgram(open_vacancy, close_vacancy);
 
     // const newVacancyDataMapper: ProgramInterface = {
     //     program_id: reqVacancy_id,

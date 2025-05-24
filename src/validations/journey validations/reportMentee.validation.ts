@@ -4,7 +4,7 @@ import { reportMenteeInterface } from "../../interfaces/journeySetting.interface
 export const reportMenteeValidation = (payload: reportMenteeInterface) => {
     const Schema = Joi.object({
         reportMentee_id: Joi.string().required(),
-        vacancy_id: Joi.string().required(),
+        program_id: Joi.string().required(),
         applicant_id: Joi.string().required(),
         title: Joi.string().required(),
         report: Joi.string().uri().default(""),

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
+import { calculateQuarter } from "src/utils/calculateQuarter";
 import { v4 as uuidv4 } from "uuid";
 import {
-    calculateQuarter,
     deleteReqVacancyRepo,
     getReqVacanciesRepo,
     getReqVacancyByIdRepo,
@@ -10,22 +10,14 @@ import {
     updateReqVacancyRepo,
 } from "../services/requestVacancy.service";
 import logger from "../utils/logger";
-import {
-    requestVacancyValidation,
-    updateRequestVacancyValidation,
-} from "../validations/requestVacancy.validation";
+import { requestVacancyValidation, updateRequestVacancyValidation } from "../validations/requestVacancy.validation";
 
-export const requestingVacancyController = async (
-    req: Request,
-    res: Response
-) => {
+export const requestingVacancyController = async (req: Request, res: Response) => {
     req.body.reqVacancy_id = uuidv4();
     const { error, value } = requestVacancyValidation(req.body);
 
     if (error) {
-        logger.info(
-            `ERR: request vacancy - create = ${error.details[0].message}`
-        );
+        logger.info(`ERR: request vacancy - create = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -58,18 +50,13 @@ export const requestingVacancyController = async (
     }
 };
 
-export const getReqVacanciesController = async (
-    req: Request,
-    res: Response
-) => {
+export const getReqVacanciesController = async (req: Request, res: Response) => {
     try {
         const {
             query: { title },
         } = req;
 
-        const reqVacancies = title
-            ? await searchReqVacancyRepo(title.toString())
-            : await getReqVacanciesRepo();
+        const reqVacancies = title ? await searchReqVacancyRepo(title.toString()) : await getReqVacanciesRepo();
 
         if (reqVacancies) {
             logger.info("Success get all requested vacancies data");
@@ -98,10 +85,7 @@ export const getReqVacanciesController = async (
     }
 };
 
-export const getReqVacancyByIdController = async (
-    req: Request,
-    res: Response
-) => {
+export const getReqVacancyByIdController = async (req: Request, res: Response) => {
     try {
         const {
             params: { reqVacancy_id },
@@ -136,19 +120,14 @@ export const getReqVacancyByIdController = async (
     }
 };
 
-export const updateReqVacancyController = async (
-    req: Request,
-    res: Response
-) => {
+export const updateReqVacancyController = async (req: Request, res: Response) => {
     const {
         params: { reqVacancy_id },
     } = req;
     const { error, value } = updateRequestVacancyValidation(req.body);
 
     if (error) {
-        logger.info(
-            `ERR: request vacancy - update = ${error.details[0].message}`
-        );
+        logger.info(`ERR: request vacancy - update = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -188,10 +167,7 @@ export const updateReqVacancyController = async (
     }
 };
 
-export const deleteReqVacancyController = async (
-    req: Request,
-    res: Response
-) => {
+export const deleteReqVacancyController = async (req: Request, res: Response) => {
     const {
         params: { reqVacancy_id },
     } = req;

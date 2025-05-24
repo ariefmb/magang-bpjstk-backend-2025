@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { DevRouter } from "../dev/routes/dev.route";
 import { ApplicantRouter } from "./applicant.route";
 import { AuthRouter } from "./auth.route";
 import { HealthRouter } from "./health.route";
@@ -6,10 +7,10 @@ import { CertificateMenteeRouter } from "./journey routes/certificateMentee.rout
 import { ReportMenteeRouter } from "./journey routes/reportMentee.route";
 import { ZoomAssignRouter } from "./journey routes/zoomAssign.route";
 import { OTPRouter } from "./otp.route";
+import { ProgramRouter } from "./program.route";
 import { ProgramTrackerRouter } from "./programTracker.route";
 import { ReqVacancyRoute } from "./requestVacancy.route";
 import { VacancyRouter } from "./vacancy.route";
-import { DevRouter } from "../dev/routes/dev.route";
 
 export const routes: Router = Router();
 
@@ -17,6 +18,7 @@ const _routes: Array<[string, Router]> = [
     ["/", HealthRouter],
     ["/auth", AuthRouter],
     ["/otp", OTPRouter],
+    ["/program", ProgramRouter],
     ["/vacancy", VacancyRouter],
     ["/request/vacancy", ReqVacancyRoute],
     ["/applicant", ApplicantRouter],

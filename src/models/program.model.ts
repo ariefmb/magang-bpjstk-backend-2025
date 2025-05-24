@@ -87,13 +87,13 @@ const programSchema = new mongoose.Schema<ProgramInterface>(
             type: Date,
             required: true,
         },
-        onBoarding_date: {
-            type: Date,
-            default: "",
-        },
         description: {
             type: String,
             trim: true,
+        },
+        onBoarding_date: {
+            type: Date,
+            default: "",
         },
         template_suratPerjanjian: {
             type: String,
@@ -107,7 +107,7 @@ const programSchema = new mongoose.Schema<ProgramInterface>(
             type: String,
             default: "",
         },
-        template_laporan: {
+        template_finalReport: {
             type: String,
             default: "",
         },

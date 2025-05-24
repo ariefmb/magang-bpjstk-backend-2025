@@ -4,7 +4,7 @@ import { ApplicantInterface } from "../interfaces/applicant.interface";
 export const addApplicantValidation = (payload: ApplicantInterface) => {
     const Schema = Joi.object({
         applicant_id: Joi.string().required(),
-        vacancy_id: Joi.string().required(),
+        program_id: Joi.string().required(),
         name: Joi.string().trim().required(),
         nik: Joi.string().trim().required(),
         email: Joi.string().email().lowercase().trim().required(),
