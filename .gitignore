@@ -8,6 +8,7 @@
 /build
 /dist
 /uploads
+/src/dev
 
 # Misc
 DS_Store

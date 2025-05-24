@@ -11,6 +11,9 @@ const certificateMenteeSchema = new mongoose.Schema<certificateMenteeInterface>(
     { timestamps: true }
 );
 
-const certificateMentorModel = mongoose.model<certificateMenteeInterface>("certificateMentee", certificateMenteeSchema);
+const certificateMenteeModel = mongoose.model<certificateMenteeInterface>(
+    "certificate_mentee",
+    certificateMenteeSchema
+);
 
-export default certificateMentorModel;
+export default certificateMenteeModel;

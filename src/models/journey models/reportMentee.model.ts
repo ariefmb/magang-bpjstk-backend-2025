@@ -16,6 +16,6 @@ const reportMenteeSchema = new mongoose.Schema<reportMenteeInterface>(
     { timestamps: true }
 );
 
-const reportMenteeModel = mongoose.model<reportMenteeInterface>("feedbackMentor", reportMenteeSchema);
+const reportMenteeModel = mongoose.model<reportMenteeInterface>("report_mentee", reportMenteeSchema);
 
 export default reportMenteeModel;

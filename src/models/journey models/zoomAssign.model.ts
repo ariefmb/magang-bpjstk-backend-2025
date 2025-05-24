@@ -13,6 +13,6 @@ const zoomAssignSchema = new mongoose.Schema<zoomAssignInterface>(
     { timestamps: true }
 );
 
-const zoomAssignModel = mongoose.model<zoomAssignInterface>("zoomAssign", zoomAssignSchema);
+const zoomAssignModel = mongoose.model<zoomAssignInterface>("zoom_assign", zoomAssignSchema);
 
 export default zoomAssignModel;
