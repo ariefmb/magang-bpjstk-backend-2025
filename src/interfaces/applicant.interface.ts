@@ -19,12 +19,6 @@ export interface ApplicantInterface {
     bank: string;
     surat_perjanjian: string;
     suratPeminjaman_idCard: string;
-    journey:
-        | "Administration"
-        | "Interview"
-        | "Offering"
-        | "Confirmation"
-        | "Working Experience"
-        | "Graduation";
-    status: "Approved" | "Rejected" | "On Going" | "Waiting" | "Off Boarding";
+    journey: string;
+    status: string;
 }

@@ -1,7 +1,7 @@
 export interface VacancyInterface {
     vacancy_id: string;
     title: string;
-    status: "Open" | "open" | "Closed" | "closed" | "Pending" | "pending";
+    status: string;
     unit: string;
     mentor_name: string;
     contact: string;
@@ -10,11 +10,7 @@ export interface VacancyInterface {
     quota: number;
     duration: number;
     city: string;
-    working_model:
-        | "Work At Office"
-        | "work at office"
-        | "Work From Home"
-        | "work from home";
+    working_model: string;
     open_vacancy: Date;
     close_vacancy: Date;
     description?: string | "";
