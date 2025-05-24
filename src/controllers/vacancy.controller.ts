@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { deleteApplicantRepo, getApplicantsToDeleted } from "../services/applicant.service";
+import { createProgramRepo, updateProgramRepoByIdVacancy } from "../services/programTracker.service";
 import { calculateQuarter, getReqVacancyByIdRepo, updateReqVacancyRepo } from "../services/requestVacancy.service";
 import {
     createVacancyApprovedRepo,
@@ -40,6 +41,31 @@ export const createVacancyController = async (req: Request, res: Response): Prom
             value.tw = calculateQuarter(value.close_vacancy);
 
             await createVacancyRepo(value);
+
+            if (["Open", "open"].includes(value.status)) {
+                const iniciateProgramTracker = {
+                    programTracker_id: uuidv4(),
+                    vacancy_id: value.vacancy_id,
+                    unit: value.unit,
+                    mentor_name: value.mentor_name,
+                    contact: value.contact,
+                    working_model: value.working_model,
+                    city: value.city,
+                    location: "",
+                    journey: "Administration",
+                    start_date: value.open_vacancy,
+                    end_date: value.close_vacancy,
+                    onBoarding_date: null,
+                    template_suratPerjanjian: "",
+                    template_suratPeminjamanIDCard: "",
+                    template_logbook: "",
+                    template_laporan: "",
+                    link_group: "",
+                };
+
+                await createProgramRepo(iniciateProgramTracker);
+            }
+
             logger.info("Success create new vacancy");
             res.status(201).send({
                 status: true,
@@ -145,7 +171,7 @@ export const updateVacancyController = async (req: Request, res: Response): Prom
         });
     } else {
         try {
-            if (req.body.close_vacancy) {
+            if (value.close_vacancy) {
                 const closingDate = new Date(value.close_vacancy);
                 closingDate.setHours(23, 59, 59, 999);
                 value.close_vacancy = closingDate;
@@ -158,6 +184,21 @@ export const updateVacancyController = async (req: Request, res: Response): Prom
                 value.tw = calculateQuarter(data.close_vacancy);
             }
 
+            const programTrackerMapper = {
+                ...value,
+                // unit: value.unit || programData.unit,
+                // mentor_name: value.mentor_name || programData.mentor_name,
+                // contact: value.contact || programData.contact,
+                // working_model: value.working_model || programData.working_model,
+                // city: value.city || programData.city,
+                // start_date: ["Closed", "closed"].includes(value.status) ? programData.start_date : data?.open_vacancy,
+                // end_date: ["Closed", "closed"].includes(value.status) ? programData.end_date : data?.close_vacancy,
+            };
+
+            console.log(`value`, value);
+            console.log(`programTrackerMapper`, programTrackerMapper);
+            console.log(value.status);
+
             const updateData = await updateVacancyByIdRepo(vacancy_id, value);
 
             if (!updateData) {
@@ -166,6 +207,19 @@ export const updateVacancyController = async (req: Request, res: Response): Prom
                     status: false,
                     statusCode: 404,
                     message: "Vacancy not found!",
+                });
+                return;
+            }
+
+            const updatedProgramData = await updateProgramRepoByIdVacancy(vacancy_id, value);
+            console.log("vacancy_id:", vacancy_id, "updatedProgramData:", updatedProgramData);
+
+            if (!updatedProgramData) {
+                logger.info("Tracker data not found!");
+                res.status(404).send({
+                    status: false,
+                    statusCode: 404,
+                    message: "Tracker data not found!",
                 });
                 return;
             }
@@ -204,21 +258,22 @@ export const deleteVacancyController = async (req: Request, res: Response): Prom
         }
 
         const deletedData = await deleteVacancyByIdRepo(vacancy_id);
-        if (deletedData) {
-            logger.info("Success delete vacancy data");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success delete vacancy data",
-            });
-        } else {
+        if (!deletedData) {
             logger.info("Vacancy data not found!");
             res.status(404).send({
                 status: false,
                 statusCode: 404,
                 message: "Vacancy data not found!",
             });
+            return;
         }
+
+        logger.info("Success delete vacancy data");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success delete vacancy data",
+        });
     } catch (error) {
         logger.error(`ERR: vacancy - delete = ${error}`);
         res.status(422).send({

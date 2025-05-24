@@ -12,7 +12,7 @@ export const createProgramTrackerValidation = (payload: programTrackerInterface)
             .valid("Work At Office", "work at office", "Work From Home", "work from home")
             .default("Work At Office"),
         city: Joi.string().required(),
-        location: Joi.string().required(),
+        location: Joi.string().default(""),
         journey: Joi.string()
             .valid("Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation")
             .default("Administration"),

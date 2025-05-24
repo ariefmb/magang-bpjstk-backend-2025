@@ -24,6 +24,14 @@ export const deleteProgramTrackerRepo = async (id: string) => {
     return await programTrackerModel.findOneAndDelete({ programTracker_id: id });
 };
 
+export const getProgramTrackerByIdVacancy = async (id: string) => {
+    return await programTrackerModel.findOne({ vacancy_id: id });
+};
+
+export const updateProgramRepoByIdVacancy = async (id: string, payload: programTrackerInterface) => {
+    return await programTrackerModel.findOneAndUpdate({ vacancy_id: id }, { $set: payload });
+};
+
 cron.schedule("0 0 * * *", async () => {
     const now = new Date();
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);

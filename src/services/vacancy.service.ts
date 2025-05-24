@@ -1,10 +1,10 @@
 import cron from "node-cron";
-import logger from "../utils/logger";
 import { v4 as uuidv4 } from "uuid";
 import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { VacancyInterface } from "../interfaces/vacancy.interface";
-import reqVacancyModel from "../models/requestVacancy.model";
 import vacancyModel from "../models/vacancy.model";
+import logger from "../utils/logger";
+import { createProgramRepo, getProgramTrackerByIdVacancy } from "./programTracker.service";
 
 export const createVacancyRepo = async (payload: VacancyInterface) => {
     return await vacancyModel.create(payload);
@@ -24,6 +24,38 @@ cron.schedule("0 0 * * *", async () => {
     try {
         await vacancyModel.updateMany({ status: "Pending", open_vacancy: { $lte: now } }, { $set: { status: "Open" } });
         await vacancyModel.updateMany({ status: "Open", close_vacanncy: { $lt: now } }, { $set: { status: "Closed" } });
+
+        const openVacancies = await vacancyModel.find({ status: "Open" });
+
+        if (openVacancies.length > 0) {
+            for (const vacancy of openVacancies) {
+                const existingTracker = await getProgramTrackerByIdVacancy(vacancy.vacancy_id);
+
+                if (!existingTracker) {
+                    const iniciateProgramTracker = {
+                        programTracker_id: uuidv4(),
+                        vacancy_id: vacancy.vacancy_id,
+                        unit: vacancy.unit,
+                        mentor_name: vacancy.mentor_name,
+                        contact: vacancy.contact,
+                        working_model: vacancy.working_model,
+                        city: vacancy.city,
+                        location: "",
+                        journey: "Administration",
+                        start_date: vacancy.open_vacancy,
+                        end_date: vacancy.close_vacancy,
+                        onBoarding_date: null,
+                        template_suratPerjanjian: "",
+                        template_suratPeminjamanIDCard: "",
+                        template_logbook: "",
+                        template_laporan: "",
+                        link_group: "",
+                    };
+
+                    await createProgramRepo(iniciateProgramTracker);
+                }
+            }
+        }
 
         logger.info(`[CRON] updated report(s) to "Overdue".`);
     } catch (error) {

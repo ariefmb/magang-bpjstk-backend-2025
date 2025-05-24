@@ -10,6 +10,7 @@ const programTrackerSchema = new mongoose.Schema<programTrackerInterface>(
         },
         vacancy_id: {
             type: String,
+            ref: "vacancy",
             required: true,
             unique: true,
         },
@@ -39,7 +40,7 @@ const programTrackerSchema = new mongoose.Schema<programTrackerInterface>(
         },
         location: {
             type: String,
-            required: true,
+            default: "",
         },
         journey: {
             type: String,

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { uploadAndDelete } from "../utils/uploadToDrive";
 import { v4 as uuidv4 } from "uuid";
 import {
     addApplicantRepo,
@@ -12,6 +11,7 @@ import {
 } from "../services/applicant.service";
 import { getVacancyByIdRepo } from "../services/vacancy.service";
 import logger from "../utils/logger";
+import { uploadAndDelete } from "../utils/uploadToDrive";
 import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
 
 export const addApplicantController = async (req: Request, res: Response) => {
@@ -81,6 +81,8 @@ export const addApplicantController = async (req: Request, res: Response) => {
                                 portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
                             };
 
+                            console.log("applicantDataMapper", applicantDataMapper);
+
                             await addApplicantRepo(applicantDataMapper);
                             logger.info("Success add new applicant");
                             res.status(201).send({
@@ -98,7 +100,7 @@ export const addApplicantController = async (req: Request, res: Response) => {
             res.status(422).send({
                 status: false,
                 statusCode: 422,
-                message: error,
+                message: error instanceof Error ? error.message : error,
             });
         }
     }

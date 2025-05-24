@@ -10,6 +10,7 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
         },
         vacancy_id: {
             type: String,
+            ref: "vacancy",
             required: true,
             unique: true,
         },

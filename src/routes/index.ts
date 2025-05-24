@@ -9,6 +9,7 @@ import { OTPRouter } from "./otp.route";
 import { ProgramTrackerRouter } from "./programTracker.route";
 import { ReqVacancyRoute } from "./requestVacancy.route";
 import { VacancyRouter } from "./vacancy.route";
+import { DevRouter } from "../dev/routes/dev.route";
 
 export const routes: Router = Router();
 
@@ -23,6 +24,7 @@ const _routes: Array<[string, Router]> = [
     ["/journey/assign_zoom", ZoomAssignRouter],
     ["/journey/report_mentee", ReportMenteeRouter],
     ["/journey/certificate_mentee", CertificateMenteeRouter],
+    ["/dev", DevRouter],
 ];
 
 _routes.forEach((route) => {
