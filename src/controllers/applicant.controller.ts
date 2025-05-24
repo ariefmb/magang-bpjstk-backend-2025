@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { uploadAndDelete } from "../utils/uploadToDrive";
 import { v4 as uuidv4 } from "uuid";
 import {
     addApplicantRepo,
@@ -8,7 +9,6 @@ import {
     getApplicantsRepo,
     searchApplicantsRepo,
     updateApplicantRepo,
-    uploadAndDelete,
 } from "../services/applicant.service";
 import { getVacancyByIdRepo } from "../services/vacancy.service";
 import logger from "../utils/logger";

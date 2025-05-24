@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { getApplicantByIdRepo, uploadAndDelete } from "../../services/applicant.service";
+import { getApplicantByIdRepo } from "../../services/applicant.service";
 import {
     addCertificateMenteeRepo,
     deleteCertificateMenteeRepo,
@@ -11,6 +11,7 @@ import {
 import { getVacancyByIdRepo } from "../../services/vacancy.service";
 import logger from "../../utils/logger";
 import { addCertificateMenteeValidation } from "../../validations/journey validations/certificateMentee.validation";
+import { uploadAndDelete } from "../../utils/uploadToDrive";
 
 export const addCertificateMenteeController = async (req: Request, res: Response): Promise<void> => {
     req.body.certificateMentee_id = uuidv4();
