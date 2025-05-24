@@ -3,31 +3,94 @@ import { ApplicantInterface } from "../interfaces/applicant.interface";
 
 const applicantSchema = new mongoose.Schema<ApplicantInterface>(
     {
-        applicant_id: { type: String, required: true, unique: true },
-        vacancy_id: { type: String, required: true, unique: true },
-        name: { type: String, required: true, trim: true },
-        nik: { type: String, required: true, trim: true },
+        applicant_id: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        vacancy_id: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        nik: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         email: {
             type: String,
             required: true,
             lowercase: true,
             trim: true,
         },
-        contact: { type: String, required: true },
-        photo: { type: String, required: true },
-        institution: { type: String, required: true },
-        major: { type: String, required: true },
-        semester: { type: Number, required: true, default: 1 },
-        no_suratPengantar: { type: String, required: true },
-        suratPengantar: { type: String, required: true },
-        cv: { type: String, required: true },
-        portfolio: { type: String, required: true },
-        no_rekening: { type: String, trim: true, default: "" },
-        surat_kuasa: { type: String, default: "" },
-        nama_bukuRek: { type: String, default: "" },
-        bank: { type: String, default: "" },
-        surat_perjanjian: { type: String, default: "" },
-        suratPeminjaman_idCard: { type: String, default: "" },
+        contact: {
+            type: String,
+            required: true,
+        },
+        photo: {
+            type: String,
+            required: true,
+        },
+        institution: {
+            type: String,
+            required: true,
+        },
+        major: {
+            type: String,
+            required: true,
+        },
+        semester: {
+            type: Number,
+            required: true,
+            default: 1,
+        },
+        no_suratPengantar: {
+            type: String,
+            required: true,
+        },
+        suratPengantar: {
+            type: String,
+            required: true,
+        },
+        cv: {
+            type: String,
+            required: true,
+        },
+        portfolio: {
+            type: String,
+            required: true,
+        },
+        no_rekening: {
+            type: String,
+            trim: true,
+            default: "",
+        },
+        surat_kuasa: {
+            type: String,
+            default: "",
+        },
+        nama_bukuRek: {
+            type: String,
+            default: "",
+        },
+        bank: {
+            type: String,
+            default: "",
+        },
+        surat_perjanjian: {
+            type: String,
+            default: "",
+        },
+        suratPeminjaman_idCard: {
+            type: String,
+            default: "",
+        },
         journey: {
             type: String,
             enum: ["Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation"],

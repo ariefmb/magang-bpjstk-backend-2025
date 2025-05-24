@@ -48,10 +48,6 @@ export const calculateQuarter = (date: Date) => {
     return Math.ceil(month / 3);
 };
 
-export const approvalVacancyRepo = async (id: string, payload: requestVacancyInterface) => {
-    return await reqVacancyModel.findOneAndUpdate({ reqVacancy_id: id }, { $set: payload });
-};
-
 export const getStatusVacancy = (openDate: Date, closeDate: Date) => {
     const thisTime: Date = new Date();
 
@@ -61,8 +57,9 @@ export const getStatusVacancy = (openDate: Date, closeDate: Date) => {
     return "Pending";
 };
 
-export const createVacancyApprovedRepo = async (payload: requestVacancyInterface) => {
+export const createVacancyApprovedRepo = async (payload: requestVacancyInterface, quotaGiven: number) => {
     const {
+        reqVacancy_id,
         title,
         unit,
         mentor_name,
@@ -75,21 +72,19 @@ export const createVacancyApprovedRepo = async (payload: requestVacancyInterface
         open_vacancy,
         close_vacancy,
         description,
-        quotaGiven,
     } = payload;
 
     const newStatus = getStatusVacancy(open_vacancy, close_vacancy);
-    const newVacancyId = uuidv4();
 
     const newVacancyDataMapper: VacancyInterface = {
-        vacancy_id: newVacancyId,
+        vacancy_id: reqVacancy_id,
         title: title,
         status: newStatus,
         unit: unit,
         mentor_name: mentor_name,
         contact: contact,
         position: position,
-        quota: quotaGiven || 1,
+        quota: quotaGiven,
         tw: tw,
         duration: duration,
         city: city,

@@ -3,10 +3,25 @@ import { certificateMenteeInterface } from "../../interfaces/journeySetting.inte
 
 const certificateMenteeSchema = new mongoose.Schema<certificateMenteeInterface>(
     {
-        certificateMentee_id: { type: String, required: true, unique: true },
-        vacancy_id: { type: String, ref: "vacancy", required: true },
-        applicant_id: { type: String, ref: "applicant", required: true },
-        certificate: { type: String, required: true },
+        certificateMentee_id: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        vacancy_id: {
+            type: String,
+            ref: "vacancy",
+            required: true,
+        },
+        applicant_id: {
+            type: String,
+            ref: "applicant",
+            required: true,
+        },
+        certificate: {
+            type: String,
+            required: true,
+        },
     },
     { timestamps: true }
 );

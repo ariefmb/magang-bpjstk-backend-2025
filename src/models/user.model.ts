@@ -3,7 +3,11 @@ import { UserInterface } from "../interfaces/user.interface";
 
 const userSchema = new mongoose.Schema<UserInterface>(
     {
-        user_id: { type: String, required: true, unique: true },
+        user_id: {
+            type: String,
+            required: true,
+            unique: true,
+        },
         email: {
             type: String,
             required: true,
@@ -11,8 +15,15 @@ const userSchema = new mongoose.Schema<UserInterface>(
             lowercase: true,
             trim: true,
         },
-        name: { type: String, required: true, trim: true },
-        password: { type: String, required: true },
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
         role: {
             type: String,
             required: true,
@@ -20,7 +31,11 @@ const userSchema = new mongoose.Schema<UserInterface>(
             default: "mentee",
             lowercase: true,
         },
-        verified: { type: Boolean, required: true, default: false },
+        verified: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
     },
     { timestamps: true }
 );

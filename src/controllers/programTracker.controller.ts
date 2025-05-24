@@ -172,9 +172,7 @@ export const updateProgramTrackerController = async (req: Request, res: Response
             if (!mentees) {
                 logger.info(`mentees not found`);
             }
-            console.log(`vacancy: ${vacancy}`);
-            console.log(`mentees: ${mentees}`);
-            
+
             logger.info(`vacancy and mentees exist`);
             await Promise.all(
                 mentees.map(async (mentee: any) => {
