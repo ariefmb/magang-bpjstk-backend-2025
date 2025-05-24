@@ -1,5 +1,5 @@
 // import cron from "node-cron";
-// import { ProgramInterface } from "src/interfaces/program.interface";
+// import { ProgramInterface } from "../interfaces/program.interface";
 // import { requestVacancyInterface } from "../interfaces/requestProgram.interface";
 // import vacancyModel from "../models/vacancy.model";
 // import logger from "../utils/logger";

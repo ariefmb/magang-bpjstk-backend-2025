@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { searchProgramRepo } from "src/services/program.service";
-import { updateProgramValidation } from "src/validations/program.validation";
 import { v4 as uuidv4 } from "uuid";
+import { searchProgramRepo } from "../services/program.service";
 import {
     deleteReqProgramRepo,
     getReqProgramByIdRepo,
@@ -11,6 +10,7 @@ import {
 } from "../services/requestProgram.service";
 import { calculateQuarter } from "../utils/calculateQuarter";
 import logger from "../utils/logger";
+import { updateProgramValidation } from "../validations/program.validation";
 import { requestProgramValidation } from "../validations/requestProgram.validation";
 
 export const requestingProgramController = async (req: Request, res: Response): Promise<void> => {

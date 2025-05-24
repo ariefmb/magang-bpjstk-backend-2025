@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { requestProgramInterface } from "src/interfaces/requestProgram.interface";
+import { requestProgramInterface } from "../interfaces/requestProgram.interface";
 import { v4 as uuidv4 } from "uuid";
 import { ProgramInterface } from "../interfaces/program.interface";
 import programModel from "../models/program.model";
