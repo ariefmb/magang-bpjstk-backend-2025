@@ -59,12 +59,7 @@ const vacancySchema = new mongoose.Schema<VacancyInterface>(
         working_model: {
             type: String,
             required: true,
-            enum: [
-                "Work At Office",
-                "work at office",
-                "Work From Home",
-                "work from home",
-            ],
+            enum: ["Work At Office", "work at office", "Work From Home", "work from home"],
             default: "Work At Office",
         },
         open_vacancy: {

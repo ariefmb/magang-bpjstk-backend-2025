@@ -16,14 +16,7 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
         status: {
             type: String,
             required: true,
-            enum: [
-                "Approved",
-                "approved",
-                "Rejected",
-                "rejected",
-                "Waiting",
-                "waiting",
-            ],
+            enum: ["Approved", "approved", "Rejected", "rejected", "Waiting", "waiting"],
             default: "Waiting",
         },
         unit: {
@@ -67,12 +60,7 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
         working_model: {
             type: String,
             required: true,
-            enum: [
-                "Work At Office",
-                "work at office",
-                "Work From Home",
-                "work from home",
-            ],
+            enum: ["Work At Office", "work at office", "Work From Home", "work from home"],
             default: "Work At Office",
         },
         open_vacancy: {
@@ -96,9 +84,6 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
     { timestamps: true }
 );
 
-const reqVacancyModel = mongoose.model<requestVacancyInterface>(
-    "request_vacancy",
-    reqVacancySchema
-);
+const reqVacancyModel = mongoose.model<requestVacancyInterface>("request_vacancy", reqVacancySchema);
 
 export default reqVacancyModel;
