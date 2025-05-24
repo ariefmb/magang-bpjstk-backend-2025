@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { getProgramByIdRepo } from "src/services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import { getApplicantByIdRepo } from "../../services/applicant.service";
 import {
@@ -8,7 +9,6 @@ import {
     getAssignZoomByIdRepo,
     updateAssignZoomRepo,
 } from "../../services/journey services/zoomAssign.service";
-import { getVacancyByIdRepo } from "../../services/vacancy.service";
 import logger from "../../utils/logger";
 import {
     assignZoomValidation,
@@ -30,13 +30,13 @@ export const assignZoomController = async (req: Request, res: Response): Promise
     }
 
     try {
-        const vacancyData = await getVacancyByIdRepo(value.vacancy_id);
-        if (!vacancyData) {
-            logger.info("ERR: assign zoom - create = Vacancy data not found");
+        const programData = await getProgramByIdRepo(value.programData);
+        if (!programData) {
+            logger.info("ERR: assign zoom - create = Program data not found");
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: assign zoom - create = Vacancy data not found",
+                message: "ERR: assign zoom - create = Program data not found",
             });
             return;
         }
@@ -52,12 +52,12 @@ export const assignZoomController = async (req: Request, res: Response): Promise
             return;
         }
 
-        if (applicantData.vacancy_id !== vacancyData.vacancy_id) {
-            logger.info("ERR: assign zoom - create = Vacancy data does not valid");
+        if (applicantData.program_id !== programData.program_id) {
+            logger.info("ERR: assign zoom - create = Program data does not valid");
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: assign zoom - create = Vacancy data does not valid",
+                message: "ERR: assign zoom - create = Program data does not valid",
             });
             return;
         }

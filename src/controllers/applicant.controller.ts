@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { getProgramByIdRepo } from "src/services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     addApplicantRepo,
@@ -9,7 +10,6 @@ import {
     searchApplicantsRepo,
     updateApplicantRepo,
 } from "../services/applicant.service";
-import { getVacancyByIdRepo } from "../services/vacancy.service";
 import logger from "../utils/logger";
 import { uploadAndDelete } from "../utils/uploadToDrive";
 import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
@@ -37,22 +37,22 @@ export const addApplicantController = async (req: Request, res: Response) => {
                     message: "user email does not valid",
                 });
             } else {
-                const vacancyExist = await getVacancyByIdRepo(value.vacancy_id);
+                const programExist = await getProgramByIdRepo(value.program_id);
 
-                if (!vacancyExist) {
-                    logger.info("ERR: applicant - add = vacancy does not exist");
+                if (!programExist) {
+                    logger.info("ERR: applicant - add = program does not exist");
                     res.status(404).send({
                         status: false,
                         statusCode: 404,
-                        message: "vacancy does not exist",
+                        message: "program does not exist",
                     });
                 } else {
-                    if (!["Open", "open"].includes(vacancyExist.status)) {
-                        logger.info("ERR: applicant - add = vacancy does not open");
+                    if (!["Open", "open"].includes(programExist.status)) {
+                        logger.info("ERR: applicant - add = program does not open");
                         res.status(422).send({
                             status: false,
                             statusCode: 422,
-                            message: "vacancy does not open",
+                            message: "program does not open",
                         });
                     } else {
                         const applicantsExist = await getApplicantsByEmailRepo(value.email);

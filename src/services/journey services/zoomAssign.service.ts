@@ -8,12 +8,12 @@ export const assignZoomRepo = async (payload: zoomAssignInterface) => {
 export const getAllAssignZoomsRepo = async () => {
     return await zoomAssignModel.find().populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",
@@ -29,12 +29,12 @@ export const getAllAssignZoomsRepo = async () => {
 export const getAssignZoomByIdRepo = async (id: string) => {
     return await zoomAssignModel.findOne({ zoomAssign_id: id }).populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",

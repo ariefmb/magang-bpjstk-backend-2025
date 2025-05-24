@@ -8,12 +8,12 @@ export const reportMenteeRepo = async (payload: reportMenteeInterface) => {
 export const getAllReportMenteesRepo = async () => {
     return await reportMenteeModel.find().populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",
@@ -29,12 +29,12 @@ export const getAllReportMenteesRepo = async () => {
 export const getReportMenteeByIdRepo = async (id: string) => {
     return await reportMenteeModel.findOne({ reportMentee_id: id }).populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",

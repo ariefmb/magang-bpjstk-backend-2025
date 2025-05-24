@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { getProgramByIdRepo } from "src/services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import { getApplicantByIdRepo } from "../../services/applicant.service";
 import {
@@ -8,10 +9,9 @@ import {
     getCertificateMenteeByIdRepo,
     updateCertificateMenteeRepo,
 } from "../../services/journey services/certificateMentee.service";
-import { getVacancyByIdRepo } from "../../services/vacancy.service";
 import logger from "../../utils/logger";
-import { addCertificateMenteeValidation } from "../../validations/journey validations/certificateMentee.validation";
 import { uploadAndDelete } from "../../utils/uploadToDrive";
+import { addCertificateMenteeValidation } from "../../validations/journey validations/certificateMentee.validation";
 
 export const addCertificateMenteeController = async (req: Request, res: Response): Promise<void> => {
     req.body.certificateMentee_id = uuidv4();
@@ -28,13 +28,13 @@ export const addCertificateMenteeController = async (req: Request, res: Response
     }
 
     try {
-        const vacancyData = await getVacancyByIdRepo(value.vacancy_id);
-        if (!vacancyData) {
-            logger.info("ERR: certificate mentee - create = Vacancy data not found");
+        const programData = await getProgramByIdRepo(value.program_id);
+        if (!programData) {
+            logger.info("ERR: certificate mentee - create = Program data not found");
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: certificate mentee - create = Vacancy data not found",
+                message: "ERR: certificate mentee - create = Program data not found",
             });
             return;
         }
@@ -50,12 +50,12 @@ export const addCertificateMenteeController = async (req: Request, res: Response
             return;
         }
 
-        if (applicantData.vacancy_id !== vacancyData.vacancy_id) {
-            logger.info("ERR: assign zoom - create = Vacancy data does not valid");
+        if (applicantData.program_id !== programData.program_id) {
+            logger.info("ERR: assign zoom - create = Program data does not valid");
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: assign zoom - create = Vacancy data does not valid",
+                message: "ERR: assign zoom - create = Program data does not valid",
             });
             return;
         }
@@ -178,7 +178,7 @@ export const updateCertificateMenteeController = async (req: Request, res: Respo
 
         const certificateMenteeDataMapper = {
             certificateMentee_id: certificateMentee_id,
-            vacancy_id: existCertificateData.vacancy_id,
+            program_id: existCertificateData.program_id,
             applicant_id: existCertificateData.applicant_id,
             certificate: await uploadAndDelete(files.certificate[0], ["pdf"]),
         };

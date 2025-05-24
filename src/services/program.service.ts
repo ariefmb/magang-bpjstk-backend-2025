@@ -1,10 +1,10 @@
 import cron from "node-cron";
-import { requestProgramInterface } from "../interfaces/requestProgram.interface";
 import { v4 as uuidv4 } from "uuid";
 import { ProgramInterface } from "../interfaces/program.interface";
+import { requestProgramInterface } from "../interfaces/requestProgram.interface";
 import programModel from "../models/program.model";
 import logger from "../utils/logger";
-import { getManyApplicantsByIdVacancy } from "./applicant.service";
+import { getManyApplicantsByIdProgram } from "./applicant.service";
 import { reportMenteeRepo } from "./journey services/reportMentee.service";
 
 export const createProgramRepo = async (payload: ProgramInterface) => {
@@ -28,7 +28,7 @@ export const updateProgramRepo = async (id: string, payload: ProgramInterface) =
 };
 
 export const assignReportMenteeByProgram = async (program_id: string, duration: number) => {
-    const mentees: any = await getManyApplicantsByIdVacancy(program_id);
+    const mentees: any = await getManyApplicantsByIdProgram(program_id);
     if (mentees.length > 0) {
         for (const mentee of mentees) {
             for (let i = 0; i < duration; i++) {

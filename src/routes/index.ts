@@ -8,7 +8,7 @@ import { ReportMenteeRouter } from "./journey routes/reportMentee.route";
 import { ZoomAssignRouter } from "./journey routes/zoomAssign.route";
 import { OTPRouter } from "./otp.route";
 import { ProgramRouter } from "./program.route";
-import { ReqProgramRoute } from "./requestVacancy.route";
+import { ReqProgramRoute } from "./requestProgram.route";
 
 export const routes: Router = Router();
 

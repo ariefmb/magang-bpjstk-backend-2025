@@ -8,12 +8,12 @@ export const addCertificateMenteeRepo = async (payload: certificateMenteeInterfa
 export const getAllCertificateMenteesRepo = async () => {
     return await certificateMentorModel.find().populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",
@@ -29,12 +29,12 @@ export const getAllCertificateMenteesRepo = async () => {
 export const getCertificateMenteeByIdRepo = async (id: string) => {
     return await certificateMentorModel.findOne({ certificateMentee_id: id }).populate([
         {
-            path: "vacancy_id",
-            model: "vacancy",
-            localField: "vacancy",
-            foreignField: "vacancy_id",
+            path: "program_id",
+            model: "program",
+            localField: "program",
+            foreignField: "program_id",
             justOne: true,
-            select: "-_id vacancy_id unit mentor_name position duration",
+            select: "-_id program_id unit mentor_name position duration",
         },
         {
             path: "applicant_id",
@@ -45,7 +45,7 @@ export const getCertificateMenteeByIdRepo = async (id: string) => {
             select: "-_id applicant_id name email contact institution major semester",
         },
     ]);
-}
+};
 
 export const updateCertificateMenteeRepo = async (id: string, payload: certificateMenteeInterface) => {
     return await certificateMentorModel.findOneAndUpdate({ certificateMentee_id: id }, { $set: payload });

@@ -17,4 +17,4 @@ ProgramRouter.get("/search", getAllProgramsController);
 ProgramRouter.get("/:program_id", getProgramByIdController);
 ProgramRouter.put("/:program_id", authorization(["admin"]), updateProgramController);
 ProgramRouter.delete("/:program_id", authorization(["admin"]), deleteProgramController);
-ProgramRouter.put("/approval/:reqVacancy_id", authorization(["admin"]), approvalReqProgramController);
+ProgramRouter.put("/approval/:reqProgram_id", authorization(["admin"]), approvalReqProgramController);

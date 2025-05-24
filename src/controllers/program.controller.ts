@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { getReqProgramByIdRepo, updateReqProgramRepo } from "../services/requestProgram.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     assignReportMenteeByProgram,
@@ -12,6 +11,7 @@ import {
     searchProgramRepo,
     updateProgramRepo,
 } from "../services/program.service";
+import { getReqProgramByIdRepo, updateReqProgramRepo } from "../services/requestProgram.service";
 import { calculateQuarter } from "../utils/calculateQuarter";
 import logger from "../utils/logger";
 import {
@@ -224,7 +224,7 @@ export const deleteProgramController = async (req: Request, res: Response): Prom
 
 export const approvalReqProgramController = async (req: Request, res: Response): Promise<void> => {
     const {
-        params: { reqVacancy_id },
+        params: { reqProgram_id },
     } = req;
     const { error, value } = approvalReqProgramValidation(req.body);
 
@@ -239,7 +239,7 @@ export const approvalReqProgramController = async (req: Request, res: Response):
     }
 
     try {
-        const updateData = await updateReqProgramRepo(reqVacancy_id, value);
+        const updateData = await updateReqProgramRepo(reqProgram_id, value);
 
         if (!updateData) {
             logger.info("Requested program not found!");
@@ -252,7 +252,7 @@ export const approvalReqProgramController = async (req: Request, res: Response):
         }
 
         if (["Approved", "approved"].includes(value.status)) {
-            const newProgramData = await getReqProgramByIdRepo(reqVacancy_id);
+            const newProgramData = await getReqProgramByIdRepo(reqProgram_id);
 
             if (!newProgramData) {
                 logger.info("Requested program data not found!");
