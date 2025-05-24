@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
+import { requestProgramInterface } from "../interfaces/requestProgram.interface";
 
-const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
+const reqProgramSchema = new mongoose.Schema<requestProgramInterface>(
     {
-        reqVacancy_id: {
+        reqProgram_id: {
             type: String,
             required: true,
             unique: true,
@@ -16,7 +16,7 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
         status: {
             type: String,
             required: true,
-            enum: ["Approved", "approved", "Rejected", "rejected", "Waiting", "waiting"],
+            enum: ["Approved", "Rejected", "Waiting"],
             default: "Waiting",
         },
         unit: {
@@ -70,18 +70,17 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
         working_model: {
             type: String,
             required: true,
-            enum: ["Work At Office", "work at office", "Work From Home", "work from home"],
+            enum: ["Work At Office", "Work From Home"],
             default: "Work At Office",
         },
-        open_vacancy: {
+        start_date: {
             type: Date,
             required: true,
             default: Date.now,
         },
-        close_vacancy: {
+        end_date: {
             type: Date,
             required: true,
-            default: Date.now,
         },
         description: {
             type: String,
@@ -94,6 +93,6 @@ const reqVacancySchema = new mongoose.Schema<requestVacancyInterface>(
     { timestamps: true }
 );
 
-const reqVacancyModel = mongoose.model<requestVacancyInterface>("request_vacancy", reqVacancySchema);
+const reqProgramModel = mongoose.model<requestProgramInterface>("request_program", reqProgramSchema);
 
-export default reqVacancyModel;
+export default reqProgramModel;

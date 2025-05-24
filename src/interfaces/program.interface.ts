@@ -8,7 +8,7 @@ export interface ProgramInterface {
     contact: string;
     position: string;
     quota: number;
-    tw?: number;
+    tw: number;
     duration: number;
     city: string;
     location: string;

@@ -1,6 +1,6 @@
 import Joi from "joi";
-import { requestVacancyInterface } from "../interfaces/requestVacancy.interface";
 import { ProgramInterface } from "../interfaces/program.interface";
+import { requestProgramInterface } from "../interfaces/requestProgram.interface";
 
 export const createProgramValidation = (payload: ProgramInterface) => {
     const Schema = Joi.object({
@@ -22,7 +22,7 @@ export const createProgramValidation = (payload: ProgramInterface) => {
             .default("Administration"),
         start_date: Joi.date().required().default(Date.now),
         end_date: Joi.date().required(),
-        description: Joi.date().optional().default(""),
+        description: Joi.string().optional().default(""),
     });
 
     return Schema.validate(payload);
@@ -51,7 +51,7 @@ const baseSchema = {
     ),
     start_date: Joi.date(),
     end_date: Joi.date(),
-    description: Joi.date(),
+    description: Joi.string(),
 };
 
 export const updateProgramValidation = (payload: ProgramInterface, journey?: string) => {
@@ -75,9 +75,9 @@ export const updateProgramValidation = (payload: ProgramInterface, journey?: str
     return Schema.validate(payload);
 };
 
-export const approvalReqProgramValidation = (payload: requestVacancyInterface) => {
+export const approvalReqProgramValidation = (payload: requestProgramInterface) => {
     const Schema = Joi.object({
-        status: Joi.string().valid("Approved", "approved", "Rejected", "rejected", "Waiting", "waiting").required(),
+        status: Joi.string().valid("Approved", "Rejected", "Waiting").required(),
         quotaGiven: Joi.number().required(),
     });
 

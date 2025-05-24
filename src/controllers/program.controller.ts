@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { getReqProgramByIdRepo, updateReqProgramRepo } from "src/services/requestProgram.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     assignReportMenteeByProgram,
@@ -11,7 +12,6 @@ import {
     searchProgramRepo,
     updateProgramRepo,
 } from "../services/program.service";
-import { getReqVacancyByIdRepo, updateReqVacancyRepo } from "../services/requestVacancy.service";
 import { calculateQuarter } from "../utils/calculateQuarter";
 import logger from "../utils/logger";
 import {
@@ -239,7 +239,7 @@ export const approvalReqProgramController = async (req: Request, res: Response):
     }
 
     try {
-        const updateData = await updateReqVacancyRepo(reqVacancy_id, value);
+        const updateData = await updateReqProgramRepo(reqVacancy_id, value);
 
         if (!updateData) {
             logger.info("Requested program not found!");
@@ -252,7 +252,7 @@ export const approvalReqProgramController = async (req: Request, res: Response):
         }
 
         if (["Approved", "approved"].includes(value.status)) {
-            const newProgramData = await getReqVacancyByIdRepo(reqVacancy_id);
+            const newProgramData = await getReqProgramByIdRepo(reqVacancy_id);
 
             if (!newProgramData) {
                 logger.info("Requested program data not found!");

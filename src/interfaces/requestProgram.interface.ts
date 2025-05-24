@@ -1,5 +1,5 @@
-export interface requestVacancyInterface {
-    reqVacancy_id: string;
+export interface requestProgramInterface {
+    reqProgram_id: string;
     title: string;
     status: string;
     unit: string;
@@ -13,8 +13,8 @@ export interface requestVacancyInterface {
     city: string;
     location: string;
     working_model: string;
-    open_vacancy: Date;
-    close_vacancy: Date;
+    start_date: Date;
+    end_date: Date;
     description?: string | "";
     quotaGiven?: number;
 }

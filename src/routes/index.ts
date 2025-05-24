@@ -8,9 +8,7 @@ import { ReportMenteeRouter } from "./journey routes/reportMentee.route";
 import { ZoomAssignRouter } from "./journey routes/zoomAssign.route";
 import { OTPRouter } from "./otp.route";
 import { ProgramRouter } from "./program.route";
-import { ProgramTrackerRouter } from "./programTracker.route";
-import { ReqVacancyRoute } from "./requestVacancy.route";
-import { VacancyRouter } from "./vacancy.route";
+import { ReqProgramRoute } from "./requestVacancy.route";
 
 export const routes: Router = Router();
 
@@ -19,10 +17,8 @@ const _routes: Array<[string, Router]> = [
     ["/auth", AuthRouter],
     ["/otp", OTPRouter],
     ["/program", ProgramRouter],
-    ["/vacancy", VacancyRouter],
-    ["/request/vacancy", ReqVacancyRoute],
+    ["/request/program", ReqProgramRoute],
     ["/applicant", ApplicantRouter],
-    ["/program_tracker", ProgramTrackerRouter],
     ["/journey/assign_zoom", ZoomAssignRouter],
     ["/journey/report_mentee", ReportMenteeRouter],
     ["/journey/certificate_mentee", CertificateMenteeRouter],

@@ -1,42 +1,18 @@
 import { Router } from "express";
 import {
-    deleteReqVacancyController,
-    getReqVacanciesController,
-    getReqVacancyByIdController,
-    requestingVacancyController,
-    updateReqVacancyController,
-} from "../controllers/requestVacancy.controller";
+    deleteReqProgramController,
+    getReqProgramByIdController,
+    getReqProgramsController,
+    requestingProgramController,
+    updateReqProgramController,
+} from "../controllers/requestProgram.controller";
 import { authorization } from "../middleware/authorization";
 
-export const ReqVacancyRoute: Router = Router();
+export const ReqProgramRoute: Router = Router();
 
-ReqVacancyRoute.post(
-    "/",
-    authorization(["mentor"]),
-    requestingVacancyController
-);
-ReqVacancyRoute.get(
-    "/",
-    authorization(["admin", "mentor"]),
-    getReqVacanciesController
-);
-ReqVacancyRoute.get(
-    "/search",
-    authorization(["admin", "mentor"]),
-    getReqVacanciesController
-);
-ReqVacancyRoute.get(
-    "/:reqVacancy_id",
-    authorization(["admin", "mentor"]),
-    getReqVacancyByIdController
-);
-ReqVacancyRoute.put(
-    "/:reqVacancy_id",
-    authorization(["mentor"]),
-    updateReqVacancyController
-);
-ReqVacancyRoute.delete(
-    "/:reqVacancy_id",
-    authorization(["admin", "mentor"]),
-    deleteReqVacancyController
-);
+ReqProgramRoute.post("/", authorization(["mentor"]), requestingProgramController);
+ReqProgramRoute.get("/", authorization(["admin", "mentor"]), getReqProgramsController);
+ReqProgramRoute.get("/search", authorization(["admin", "mentor"]), getReqProgramsController);
+ReqProgramRoute.get("/:reqProgram_id", authorization(["admin", "mentor"]), getReqProgramByIdController);
+ReqProgramRoute.put("/:reqProgram_id", authorization(["mentor"]), updateReqProgramController);
+ReqProgramRoute.delete("/:reqProgram_id", authorization(["admin", "mentor"]), deleteReqProgramController);
