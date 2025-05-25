@@ -2,6 +2,7 @@ export interface UserInterface {
     user_id: string;
     email: string;
     name: string;
+    contact: string;
     password: string;
     role: string;
     verified: boolean;

@@ -3,17 +3,20 @@ import { v4 as uuidv4 } from "uuid";
 import {
     createUserRepo,
     deleteUserByIdRepo,
+    findMenteeById,
+    findMentorById,
     findUserByEmail,
     findUserById,
     findUserRepo,
+    getAllMenteesRepo,
+    getAllMentorsRepo,
     resetPasswordRepo,
+    searchMenteeRepo,
+    searchMentorRepo,
     searchUserRepo,
     updateUserByIdRepo,
 } from "../services/auth.service";
-import {
-    sendEmailForgotPasswordService,
-    sendEmailVerificationService,
-} from "../services/mailSender.service";
+import { sendEmailForgotPasswordService, sendEmailVerificationService } from "../services/mailSender.service";
 import { findMatchOTP } from "../services/otp.service";
 import { hashing, verifyHashedData } from "../utils/hashing";
 import { signJWT, verifyJWT } from "../utils/jwt";
@@ -45,14 +48,11 @@ export const registerUserController = async (req: Request, res: Response) => {
             await createUserRepo(value);
             await sendEmailVerificationService(value.email);
 
-            logger.info(
-                "Success register new user and send verification email"
-            );
+            logger.info("Success register new user and send verification email");
             res.status(201).send({
                 status: true,
                 statusCode: 201,
-                message:
-                    "Success register new user and send verification email",
+                message: "Success register new user and send verification email",
             });
         } catch (error) {
             logger.error(`ERR: auth - create = ${error}`);
@@ -88,10 +88,7 @@ export const loginController = async (req: Request, res: Response) => {
                         message: "User not verified yet, check your inbox!",
                     });
                 } else {
-                    const isValid = verifyHashedData(
-                        value.password,
-                        user.password
-                    );
+                    const isValid = verifyHashedData(value.password, user.password);
 
                     if (!isValid) {
                         logger.info("Invalid email or password");
@@ -101,15 +98,9 @@ export const loginController = async (req: Request, res: Response) => {
                             message: "Invalid email or password",
                         });
                     } else {
-                        const accessToken = signJWT(
-                            { ...user },
-                            { expiresIn: "1d" }
-                        );
+                        const accessToken = signJWT({ ...user }, { expiresIn: "1d" });
 
-                        const refreshToken = signJWT(
-                            { ...user },
-                            { expiresIn: "1y" }
-                        );
+                        const refreshToken = signJWT({ ...user }, { expiresIn: "1y" });
 
                         logger.info("Login success");
                         res.status(200).send({
@@ -147,9 +138,7 @@ export const refreshSessionController = async (req: Request, res: Response) => {
     const { error, value } = refreshSessionValidation(req.body);
 
     if (error) {
-        logger.error(
-            `ERR: auth - refresh session = ${error.details[0].message}`
-        );
+        logger.error(`ERR: auth - refresh session = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -171,14 +160,12 @@ export const refreshSessionController = async (req: Request, res: Response) => {
                 const accessToken = signJWT({ ...user }, { expiresIn: "1d" });
 
                 logger.info("Refresh token success");
-                res.cookie("token", accessToken, { signed: true })
-                    .status(200)
-                    .send({
-                        status: true,
-                        statusCode: 200,
-                        message: "Refresh token success",
-                        data: { user, accessToken },
-                    });
+                res.cookie("token", accessToken, { signed: true }).status(200).send({
+                    status: true,
+                    statusCode: 200,
+                    message: "Refresh token success",
+                    data: { user, accessToken },
+                });
             }
         } catch (error) {
             logger.error(`ERR: auth - refresh session = ${error}`);
@@ -218,9 +205,7 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
     const { error, value } = requestForgotPasswordValidation(email);
 
     if (error) {
-        logger.error(
-            `ERR: auth - forgot password = ${error.details[0].message}`
-        );
+        logger.error(`ERR: auth - forgot password = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -261,9 +246,7 @@ export const resetPasswordController = async (req: Request, res: Response) => {
     const { error, value } = resetPasswordValidation(req.body);
 
     if (error) {
-        logger.error(
-            `ERR: auth - reset password = ${error.details[0].message}`
-        );
+        logger.error(`ERR: auth - reset password = ${error.details[0].message}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
@@ -281,10 +264,7 @@ export const resetPasswordController = async (req: Request, res: Response) => {
             });
         } else {
             try {
-                const isValid = verifyHashedData(
-                    value.otp,
-                    matchedOTPRecord.otp
-                );
+                const isValid = verifyHashedData(value.otp, matchedOTPRecord.otp);
 
                 if (!isValid) {
                     logger.info(`ERR: auth - reset password = Invalid OTP`);
@@ -295,15 +275,10 @@ export const resetPasswordController = async (req: Request, res: Response) => {
                     });
                 } else {
                     value.password = hashing(value.password);
-                    const resetedPassword = await resetPasswordRepo(
-                        value.email,
-                        value.password
-                    );
+                    const resetedPassword = await resetPasswordRepo(value.email, value.password);
 
                     if (!resetedPassword) {
-                        logger.error(
-                            `ERR: auth - reset password = Password reset failed`
-                        );
+                        logger.error(`ERR: auth - reset password = Password reset failed`);
                         res.status(422).send({
                             status: false,
                             statusCode: 422,
@@ -338,9 +313,7 @@ export const getAllUsersController = async (req: Request, res: Response) => {
             query: { name },
         } = req;
 
-        const users = name
-            ? await searchUserRepo(name.toString())
-            : await findUserRepo();
+        const users = name ? await searchUserRepo(name.toString()) : await findUserRepo();
 
         if (users) {
             logger.info("Success get all users");
@@ -396,6 +369,148 @@ export const getUserByIdController = async (req: Request, res: Response) => {
         }
     } catch (error) {
         logger.info(`ERR: user - get by id = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getAllMentorsController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {
+            query: { name },
+        } = req;
+
+        const mentors = name ? await searchMentorRepo(name.toString()) : await getAllMentorsRepo();
+
+        if (!mentors) {
+            logger.info("Internal server error!");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+            return;
+        }
+
+        logger.info("Success get all mentors");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get all mentors",
+            data: mentors,
+        });
+    } catch (error) {
+        logger.info(`ERR: mentors - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getMentorByIdController = async (req: Request, res: Response) => {
+    try {
+        const {
+            params: { user_id },
+        } = req;
+
+        const mentor = await findMentorById(user_id);
+
+        if (mentor) {
+            logger.info("Success find mentor");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success find mentor",
+                data: mentor,
+            });
+        } else {
+            logger.info("Mentor not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Mentor not found!",
+                data: {},
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: mentor - get by id = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getAllMenteesController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {
+            query: { name },
+        } = req;
+
+        const mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
+
+        if (!mentees) {
+            logger.info("Internal server error!");
+            res.status(500).send({
+                status: false,
+                statusCode: 500,
+                message: "Internal server error",
+                data: [],
+            });
+            return;
+        }
+
+        logger.info("Success get all mentees");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get all mentees",
+            data: mentees,
+        });
+    } catch (error) {
+        logger.info(`ERR: mentees - get all = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const getMenteeByIdController = async (req: Request, res: Response) => {
+    try {
+        const {
+            params: { user_id },
+        } = req;
+
+        const mentee = await findMenteeById(user_id);
+
+        if (mentee) {
+            logger.info("Success find mentee");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success find mentee",
+                data: mentee,
+            });
+        } else {
+            logger.info("Mentee not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "Mentee not found!",
+                data: {},
+            });
+        }
+    } catch (error) {
+        logger.info(`ERR: mentee - get by id = ${error}`);
         res.status(422).send({
             status: false,
             statusCode: 422,

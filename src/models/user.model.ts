@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema<UserInterface>(
             required: true,
             trim: true,
         },
+        contact: {
+            type: String,
+            required: true,
+        },
         password: {
             type: String,
             required: true,

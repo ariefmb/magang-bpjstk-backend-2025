@@ -14,7 +14,7 @@ import logger from "../utils/logger";
 import { uploadAndDelete } from "../utils/uploadToDrive";
 import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
 
-export const addApplicantController = async (req: Request, res: Response) => {
+export const addApplicantController = async (req: Request, res: Response): Promise<void> => {
     req.body.applicant_id = uuidv4();
     const { error, value } = addApplicantValidation(req.body);
 
@@ -47,52 +47,54 @@ export const addApplicantController = async (req: Request, res: Response) => {
                         message: "program does not exist",
                     });
                 } else {
-                    if (!["Open", "open"].includes(programExist.status)) {
+                    if (programExist.status !== "Active") {
                         logger.info("ERR: applicant - add = program does not open");
                         res.status(422).send({
                             status: false,
                             statusCode: 422,
                             message: "program does not open",
                         });
-                    } else {
-                        const applicantsExist = await getApplicantsByEmailRepo(value.email);
-
-                        const hasOnGoingProgram = applicantsExist.some(
-                            (applicant) => !["Off Boarding", "Rejected"].includes(applicant.status)
-                        );
-
-                        if (hasOnGoingProgram) {
-                            logger.info("ERR: applicant - add = applicant has on going program");
-                            res.status(422).send({
-                                status: false,
-                                statusCode: 422,
-                                message: "Applicant has on going program",
-                            });
-                        } else {
-                            const files = req.files as {
-                                [fieldname: string]: Express.Multer.File[];
-                            };
-
-                            const applicantDataMapper = {
-                                ...value,
-                                photo: await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]),
-                                suratPengantar: await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]),
-                                cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
-                                portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
-                            };
-
-                            console.log("applicantDataMapper", applicantDataMapper);
-
-                            await addApplicantRepo(applicantDataMapper);
-                            logger.info("Success add new applicant");
-                            res.status(201).send({
-                                status: true,
-                                statusCode: 201,
-                                message: "Success add new applicant",
-                                data: value,
-                            });
-                        }
+                        return;
                     }
+
+                    const applicantsExist = await getApplicantsByEmailRepo(value.email);
+
+                    const hasOnGoingProgram = applicantsExist.some(
+                        (applicant) => !["Off Boarding", "Rejected"].includes(applicant.status)
+                    );
+
+                    if (hasOnGoingProgram) {
+                        logger.info("ERR: applicant - add = applicant has on going program");
+                        res.status(422).send({
+                            status: false,
+                            statusCode: 422,
+                            message: "Applicant has on going program",
+                        });
+                        return;
+                    }
+
+                    const files = req.files as {
+                        [fieldname: string]: Express.Multer.File[];
+                    };
+
+                    const applicantDataMapper = {
+                        ...value,
+                        photo: await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]),
+                        suratPengantar: await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]),
+                        cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
+                        portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
+                    };
+
+                    console.log("applicantDataMapper", applicantDataMapper);
+
+                    await addApplicantRepo(applicantDataMapper);
+                    logger.info("Success add new applicant");
+                    res.status(201).send({
+                        status: true,
+                        statusCode: 201,
+                        message: "Success add new applicant",
+                        data: value,
+                    });
                 }
             }
         } catch (error) {
