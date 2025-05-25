@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { getProgramByIdRepo } from "../services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     addApplicantRepo,
@@ -10,6 +9,7 @@ import {
     searchApplicantsRepo,
     updateApplicantRepo,
 } from "../services/applicant.service";
+import { getProgramByIdRepo } from "../services/program.service";
 import logger from "../utils/logger";
 import { uploadAndDelete } from "../utils/uploadToDrive";
 import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";

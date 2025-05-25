@@ -1,17 +1,20 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { searchProgramRepo } from "../services/program.service";
 import {
+    deleteReqProgramByMentorRepo,
     deleteReqProgramRepo,
+    getAllReqProgramsByMentorRepo,
+    getAllReqProgramsRepo,
+    getReqProgramByIdandMentorRepo,
     getReqProgramByIdRepo,
-    getReqProgramsRepo,
     requestProgramRepo,
-    updateReqProgramRepo,
+    searchReqProgramByMentorRepo,
+    searchReqProgramRepo,
+    updateReqProgramByMentorRepo,
 } from "../services/requestProgram.service";
 import { calculateQuarter } from "../utils/calculateQuarter";
 import logger from "../utils/logger";
-import { updateProgramValidation } from "../validations/program.validation";
-import { requestProgramValidation } from "../validations/requestProgram.validation";
+import { requestProgramValidation, updateRequestProgramValidation } from "../validations/requestProgram.validation";
 
 export const requestingProgramController = async (req: Request, res: Response): Promise<void> => {
     req.body.reqProgram_id = uuidv4();
@@ -28,8 +31,20 @@ export const requestingProgramController = async (req: Request, res: Response): 
     }
 
     try {
+        const user = res.locals.user;
+
+        if (user._doc.email !== value.mentor_email) {
+            logger.info("ERR: request program - create = user email does not valid");
+            res.status(422).json({
+                status: false,
+                statusCode: 422,
+                message: "user email does not valid",
+            });
+            return;
+        }
+
         value.end_date.setHours(23, 59, 59, 999);
-        value.tw = calculateQuarter(value.end_date);
+        value.tw = calculateQuarter(value.start_date);
 
         await requestProgramRepo(value);
         logger.info("Success request new program");
@@ -55,7 +70,20 @@ export const getReqProgramsController = async (req: Request, res: Response): Pro
             query: { title },
         } = req;
 
-        const reqPrograms = title ? await searchProgramRepo(title.toString()) : await getReqProgramsRepo();
+        const user = res.locals.user;
+        const role = user._doc.role;
+        let email = user._doc.email;
+
+        const isMentor = role === "mentor";
+        let reqPrograms;
+
+        if (isMentor) {
+            reqPrograms = title
+                ? await searchReqProgramByMentorRepo(email, title.toString())
+                : await getAllReqProgramsByMentorRepo(email);
+        } else {
+            reqPrograms = title ? await searchReqProgramRepo(title.toString()) : await getAllReqProgramsRepo();
+        }
 
         if (!reqPrograms) {
             logger.info("Internal server error");
@@ -91,7 +119,15 @@ export const getReqProgramByIdController = async (req: Request, res: Response): 
             params: { reqProgram_id },
         } = req;
 
-        const reqProgram = await getReqProgramByIdRepo(reqProgram_id);
+        const user = res.locals.user;
+        const role = user._doc.role;
+        const email = user._doc.email;
+
+        const isMentor = role === "mentor";
+
+        const reqProgram = isMentor
+            ? await getReqProgramByIdandMentorRepo(email, reqProgram_id)
+            : await getReqProgramByIdRepo(reqProgram_id);
 
         if (!reqProgram) {
             logger.info("Requested program data not found!");
@@ -125,7 +161,7 @@ export const updateReqProgramController = async (req: Request, res: Response): P
     const {
         params: { reqProgram_id },
     } = req;
-    const { error, value } = updateProgramValidation(req.body);
+    const { error, value } = updateRequestProgramValidation(req.body);
 
     if (error) {
         logger.info(`ERR: request program - update = ${error.details[0].message}`);
@@ -138,8 +174,12 @@ export const updateReqProgramController = async (req: Request, res: Response): P
     }
 
     try {
-        if (value.end_date) value.tw = calculateQuarter(value.endDate);
-        const updateData = await updateReqProgramRepo(reqProgram_id, value);
+        if (value.start_date) value.tw = calculateQuarter(value.start_date);
+
+        const user = res.locals.user;
+        const email = user._doc.email;
+
+        const updateData = await updateReqProgramByMentorRepo(email, reqProgram_id, value);
 
         if (!updateData) {
             logger.info("Request program not found!");
@@ -173,7 +213,15 @@ export const deleteReqProgramController = async (req: Request, res: Response): P
     } = req;
 
     try {
-        const deletedData = await deleteReqProgramRepo(reqProgram_id);
+        const user = res.locals.user;
+        const role = user._doc.role;
+        const email = user._doc.email;
+
+        const isMentor = role === "mentor";
+
+        const deletedData = isMentor
+            ? await deleteReqProgramByMentorRepo(email, reqProgram_id)
+            : await deleteReqProgramRepo(reqProgram_id);
 
         if (!deletedData) {
             logger.info("Requested program data not found!");

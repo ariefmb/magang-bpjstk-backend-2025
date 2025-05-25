@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { findUserRepo } from "../services/auth.service";
 import {
     assignReportMenteeByProgram,
     createProgramApprovedRepo,
@@ -35,9 +36,23 @@ export const createProgramController = async (req: Request, res: Response): Prom
     }
 
     try {
-        value.endDate.setHours(23, 59, 59, 999);
+        const existingMentor = await findUserRepo().then((mentors) =>
+            mentors.find((mentor) => mentor.email.toLowerCase() === value.mentor_email.toLowerCase())
+        );
+
+        if (!existingMentor) {
+            logger.info("Mentor not assigned yet");
+            res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "Mentor not assigned yet",
+            });
+            return;
+        }
+
+        value.end_date.setHours(23, 59, 59, 999);
         value.status = getStatusProgram(value.start_date);
-        value.tw = calculateQuarter(value.end_date);
+        value.tw = calculateQuarter(value.start_date);
 
         await createProgramRepo(value);
 
@@ -147,10 +162,28 @@ export const updateProgramController = async (req: Request, res: Response): Prom
     }
 
     try {
-        if (value.start_date) value.status = getStatusProgram(value.start_date);
+        if (value.mentor_email) {
+            const existingMentor = await findUserRepo().then((mentors) =>
+                mentors.find((mentor) => mentor.email.toLowerCase() === value.mentor_email.toLowerCase())
+            );
+
+            if (!existingMentor) {
+                logger.info("Mentor not assigned yet");
+                res.status(404).json({
+                    status: false,
+                    statusCode: 404,
+                    message: "Mentor not assigned yet",
+                });
+                return;
+            }
+        }
+
+        if (value.start_date) {
+            value.status = getStatusProgram(value.start_date);
+            value.tw = calculateQuarter(value.start_date);
+        }
         if (value.end_date) {
             value.end_date.setHours(23, 59, 59, 999);
-            value.tw = calculateQuarter(value.end_date);
         }
         if (value.journey && value.journey === "Offering") value.onBoarding_date.setHours(8, 59, 59, 999);
 

@@ -83,7 +83,7 @@ cron.schedule("0 0 * * *", async () => {
 
 export const getStatusProgram = (openDate: Date) => {
     const thisTime: Date = new Date();
-    return openDate < thisTime ? "Pending" : "Active";
+    return openDate > thisTime ? "Pending" : "Active";
 };
 
 export const createProgramApprovedRepo = async (payload: requestProgramInterface, quotaGiven: number) => {
