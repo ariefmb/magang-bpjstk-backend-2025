@@ -28,13 +28,15 @@ export const addApplicantController = async (req: Request, res: Response): Promi
     } else {
         try {
             const user = res.locals.user;
+            const userId = user._doc.user_id
+            const userEmail = user._doc.email
 
-            if (user._doc.email !== value.email) {
-                logger.info("ERR: applicant - add = user email does not valid");
+            if (userId !== value.user_id && userEmail !== value.email) {
+                logger.info("ERR: applicant - add = user does not valid");
                 res.status(422).send({
                     status: false,
                     statusCode: 422,
-                    message: "user email does not valid",
+                    message: "user does not valid",
                 });
             } else {
                 const programExist = await getProgramByIdRepo(value.program_id);
@@ -108,7 +110,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
     }
 };
 
-export const getAllApplicantsController = async (req: Request, res: Response) => {
+export const getAllApplicantsController = async (req: Request, res: Response): Promise<void> => {
     try {
         const {
             query: { name },
@@ -143,7 +145,7 @@ export const getAllApplicantsController = async (req: Request, res: Response) =>
     }
 };
 
-export const getApplicantByIdController = async (req: Request, res: Response) => {
+export const getApplicantByIdController = async (req: Request, res: Response): Promise<void> => {
     const {
         params: { applicant_id },
     } = req;
@@ -259,7 +261,7 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
     }
 };
 
-export const deleteApplicantController = async (req: Request, res: Response) => {
+export const deleteApplicantController = async (req: Request, res: Response): Promise<void> => {
     const {
         params: { applicant_id },
     } = req;

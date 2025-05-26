@@ -37,7 +37,9 @@ export const createProgramController = async (req: Request, res: Response): Prom
 
     try {
         const existingMentor = await findUserRepo().then((mentors) =>
-            mentors.find((mentor) => mentor.email.toLowerCase() === value.mentor_email.toLowerCase())
+            mentors.find((mentor) => {
+                mentor.email.toLowerCase() === value.mentor_email.toLowerCase() && mentor.user_id === value.user_id;
+            })
         );
 
         if (!existingMentor) {

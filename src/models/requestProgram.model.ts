@@ -8,6 +8,11 @@ const reqProgramSchema = new mongoose.Schema<requestProgramInterface>(
             required: true,
             unique: true,
         },
+        user_id: {
+            type: String,
+            ref: "user",
+            required: true,
+        },
         title: {
             type: String,
             required: true,

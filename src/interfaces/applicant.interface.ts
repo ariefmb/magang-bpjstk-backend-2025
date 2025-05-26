@@ -1,6 +1,7 @@
 export interface ApplicantInterface {
     applicant_id: string;
     program_id: string;
+    user_id: string;
     name: string;
     nik: string;
     email: string;

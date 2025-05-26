@@ -5,6 +5,7 @@ import { requestProgramInterface } from "../interfaces/requestProgram.interface"
 export const createProgramValidation = (payload: ProgramInterface) => {
     const Schema = Joi.object({
         program_id: Joi.string().required(),
+        user_id: Joi.string().required(),
         title: Joi.string().required().trim(),
         status: Joi.string().valid("Active", "Finished", "Pending"),
         unit: Joi.string().required().trim(),

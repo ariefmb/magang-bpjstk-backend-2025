@@ -73,7 +73,7 @@ cron.schedule("0 0 * * *", async () => {
     const now = new Date();
 
     try {
-        await programModel.updateMany({ status: "Pending", start_date: { $lte: now } }, { $set: { status: "Open" } });
+        await programModel.updateMany({ status: "Pending", start_date: { $lte: now } }, { $set: { status: "Active" } });
 
         logger.info(`[CRON] updated report(s) to "Overdue".`);
     } catch (error) {
@@ -89,6 +89,7 @@ export const getStatusProgram = (openDate: Date) => {
 export const createProgramApprovedRepo = async (payload: requestProgramInterface, quotaGiven: number) => {
     const {
         reqProgram_id,
+        user_id,
         title,
         unit,
         mentor_name,
@@ -109,6 +110,7 @@ export const createProgramApprovedRepo = async (payload: requestProgramInterface
 
     const newProgramDataMapper: ProgramInterface = {
         program_id: reqProgram_id,
+        user_id: user_id,
         title: title,
         status: newStatus,
         unit: unit,

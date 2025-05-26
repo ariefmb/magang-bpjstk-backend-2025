@@ -1,5 +1,6 @@
 export interface ProgramInterface {
     program_id: string;
+    user_id: string;
     title: string;
     status: string;
     unit: string;

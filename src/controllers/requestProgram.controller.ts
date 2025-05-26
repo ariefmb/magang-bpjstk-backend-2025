@@ -32,13 +32,15 @@ export const requestingProgramController = async (req: Request, res: Response): 
 
     try {
         const user = res.locals.user;
+        const mentorId = user._doc.user_id
+        const mentorEmail = user._doc.email
 
-        if (user._doc.email !== value.mentor_email) {
-            logger.info("ERR: request program - create = user email does not valid");
+        if (mentorId !== value.user_id && mentorEmail !== value.mentor_email) {
+            logger.info("ERR: request program - create = user does not valid");
             res.status(422).json({
                 status: false,
                 statusCode: 422,
-                message: "user email does not valid",
+                message: "user does not valid",
             });
             return;
         }
