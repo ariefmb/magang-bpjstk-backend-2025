@@ -20,7 +20,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
 
     if (error) {
         logger.info(`ERR: applicant - add = ${error.details[0].message}`);
-        res.status(422).send({
+        res.status(422).json({
             status: false,
             statusCode: 422,
             message: error.details[0].message,
@@ -33,7 +33,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
 
             if (userId !== value.user_id || userEmail !== value.email) {
                 logger.info("ERR: applicant - add = user does not valid");
-                res.status(422).send({
+                res.status(422).json({
                     status: false,
                     statusCode: 422,
                     message: "user does not valid",
@@ -43,7 +43,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
 
                 if (!programExist) {
                     logger.info("ERR: applicant - add = program does not exist");
-                    res.status(404).send({
+                    res.status(404).json({
                         status: false,
                         statusCode: 404,
                         message: "program does not exist",
@@ -51,7 +51,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
                 } else {
                     if (programExist.status !== "Active") {
                         logger.info("ERR: applicant - add = program does not open");
-                        res.status(422).send({
+                        res.status(422).json({
                             status: false,
                             statusCode: 422,
                             message: "program does not open",
@@ -67,7 +67,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
 
                     if (hasOnGoingProgram) {
                         logger.info("ERR: applicant - add = applicant has on going program");
-                        res.status(422).send({
+                        res.status(422).json({
                             status: false,
                             statusCode: 422,
                             message: "Applicant has on going program",
@@ -91,7 +91,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
 
                     await addApplicantRepo(applicantDataMapper);
                     logger.info("Success add new applicant");
-                    res.status(201).send({
+                    res.status(201).json({
                         status: true,
                         statusCode: 201,
                         message: "Success add new applicant",
@@ -101,7 +101,7 @@ export const addApplicantController = async (req: Request, res: Response): Promi
             }
         } catch (error) {
             logger.info(`ERR: applicant - add = ${error}`);
-            res.status(422).send({
+            res.status(422).json({
                 status: false,
                 statusCode: 422,
                 message: error instanceof Error ? error.message : error,
@@ -120,7 +120,7 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
 
         if (!applicants) {
             logger.info("Internal server error");
-            res.status(500).send({
+            res.status(500).json({
                 status: false,
                 statusCode: 500,
                 message: "Internal server error",
@@ -137,7 +137,7 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
             const findPrograms = await getAllProgramsByIdMentorRepo(userId);
             if (!findPrograms || findPrograms.length === 0) {
                 logger.info("Mentor has no program");
-                res.status(500).send({
+                res.status(500).json({
                     status: false,
                     statusCode: 500,
                     message: "Mentor has no program",
@@ -146,13 +146,13 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
                 return;
             }
 
-            const mentorProgramIds = findPrograms.map(program => program.program_id)
-            const applicantsFiltered = applicants.filter(applicant =>
+            const mentorProgramIds = findPrograms.map((program) => program.program_id);
+            const applicantsFiltered = applicants.filter((applicant) =>
                 mentorProgramIds.includes(applicant.program_id)
-            )
+            );
 
             logger.info("Success get all applicants data");
-            res.status(200).send({
+            res.status(200).json({
                 status: true,
                 statusCode: 200,
                 message: "Success get all applicants data",
@@ -162,7 +162,7 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
         }
 
         logger.info("Success get all applicants data");
-        res.status(200).send({
+        res.status(200).json({
             status: true,
             statusCode: 200,
             message: "Success get all applicants data",
@@ -170,9 +170,9 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
         });
     } catch (error: any) {
         logger.info(`ERR: applicants - get all = ${error}`);
-        res.status(422).send({
+        res.status(500).json({
             status: false,
-            statusCode: 422,
+            statusCode: 500,
             message: error.message || error,
         });
     }
@@ -188,7 +188,7 @@ export const getApplicantByIdController = async (req: Request, res: Response): P
 
         if (!applicant) {
             logger.info("Applicant data not found!");
-            res.status(404).send({
+            res.status(404).json({
                 status: false,
                 statusCode: 404,
                 message: "Applicant data not found!",
@@ -198,7 +198,7 @@ export const getApplicantByIdController = async (req: Request, res: Response): P
         }
 
         logger.info("Success get applicant data");
-        res.status(200).send({
+        res.status(200).json({
             status: true,
             statusCode: 200,
             message: "Success get applicant data",
@@ -206,7 +206,7 @@ export const getApplicantByIdController = async (req: Request, res: Response): P
         });
     } catch (error) {
         logger.info(`ERR: applicant - get by id = ${error}`);
-        res.status(422).send({
+        res.status(422).json({
             status: false,
             statusCode: 422,
             message: error,
@@ -222,7 +222,7 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
 
     if (error) {
         logger.info(`ERR: applicant - update = ${error.details[0].message}`);
-        res.status(422).send({
+        res.status(422).json({
             status: false,
             statusCode: 422,
             message: error.details[0].message,
@@ -235,7 +235,7 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
 
         if (user._doc.email !== value.email && user._doc.role !== "admin") {
             logger.info("ERR: applicant - update = this user have no access");
-            res.status(422).send({
+            res.status(422).json({
                 status: false,
                 statusCode: 422,
                 message: "this user have no access",
@@ -271,7 +271,7 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
 
         if (!updateData) {
             logger.info("Applicant data not found!");
-            res.status(404).send({
+            res.status(404).json({
                 status: false,
                 statusCode: 404,
                 message: "Applicant data not found!",
@@ -280,14 +280,14 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
         }
 
         logger.info("Success update applicant data");
-        res.status(200).send({
+        res.status(200).json({
             status: true,
             statusCode: 200,
             message: "Success update applicant data",
         });
     } catch (error) {
         logger.error(`ERR: applicant - update = ${error}`);
-        res.status(422).send({
+        res.status(422).json({
             status: false,
             statusCode: 422,
             message: error,
@@ -305,14 +305,14 @@ export const deleteApplicantController = async (req: Request, res: Response): Pr
 
         if (deletedData) {
             logger.info("Success delete applicant data");
-            res.status(200).send({
+            res.status(200).json({
                 status: true,
                 statusCode: 200,
                 message: "Success delete applicant data",
             });
         } else {
             logger.info("Applicant data not found!");
-            res.status(404).send({
+            res.status(404).json({
                 status: false,
                 statusCode: 404,
                 message: "Applicant data not found!",
@@ -320,7 +320,7 @@ export const deleteApplicantController = async (req: Request, res: Response): Pr
         }
     } catch (error) {
         logger.error(`ERR: applicant - delete = ${error}`);
-        res.status(422).send({
+        res.status(422).json({
             status: false,
             statusCode: 422,
             message: error,

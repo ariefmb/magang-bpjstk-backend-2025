@@ -6,9 +6,11 @@ import {
     createProgramApprovedRepo,
     createProgramRepo,
     deleteProgramRepo,
+    getAllProgramsByIdMentorRepo,
     getAllProgramsRepo,
     getProgramByIdRepo,
     getStatusProgram,
+    searchProgramByIdMentorRepo,
     searchProgramRepo,
     updateProgramRepo,
 } from "../services/program.service";
@@ -81,7 +83,16 @@ export const getAllProgramsController = async (req: Request, res: Response): Pro
             query: { title },
         } = req;
 
-        const programs = title ? await searchProgramRepo(title.toString()) : await getAllProgramsRepo();
+        const user = res?.locals.user
+        const userId = user?._doc.user_id
+        const isMentor = user?._doc.role === "mentor"
+
+        let programs;
+        if (isMentor) {
+            programs = title ? await searchProgramByIdMentorRepo(userId, title.toString()) : await getAllProgramsByIdMentorRepo(userId);            
+        } else {
+            programs = title ? await searchProgramRepo(title.toString()) : await getAllProgramsRepo();
+        }
 
         if (!programs) {
             logger.info("Internal server error");
@@ -101,12 +112,12 @@ export const getAllProgramsController = async (req: Request, res: Response): Pro
             message: "Success get all programs data",
             data: programs,
         });
-    } catch (error) {
+    } catch (error: any) {
         logger.info(`ERR: programs - get all = ${error}`);
         res.status(500).json({
             status: false,
             statusCode: 500,
-            message: error,
+            message: error.message || error,
         });
     }
 };
