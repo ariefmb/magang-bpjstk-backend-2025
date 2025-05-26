@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { getManyApplicantsByIdProgram } from "src/services/applicant.service";
+import { getAllProgramsByIdMentorRepo } from "src/services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     createUserRepo,
@@ -448,76 +450,181 @@ export const getMentorByIdController = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllMenteesController = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const {
-            query: { name },
-        } = req;
+// export const getAllMenteesController = async (req: Request, res: Response): Promise<void> => {
+//     try {
+//         const {
+//             query: { name },
+//         } = req;
 
-        const mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
+//         const mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
 
-        if (!mentees) {
-            logger.info("Internal server error!");
-            res.status(500).send({
-                status: false,
-                statusCode: 500,
-                message: "Internal server error",
-                data: [],
-            });
-            return;
-        }
+//         if (!mentees) {
+//             logger.info("Internal server error!");
+//             res.status(500).send({
+//                 status: false,
+//                 statusCode: 500,
+//                 message: "Internal server error",
+//                 data: [],
+//             });
+//             return;
+//         }
 
-        logger.info("Success get all mentees");
-        res.status(200).send({
-            status: true,
-            statusCode: 200,
-            message: "Success get all mentees",
-            data: mentees,
-        });
-    } catch (error) {
-        logger.info(`ERR: mentees - get all = ${error}`);
-        res.status(422).send({
-            status: false,
-            statusCode: 422,
-            message: error,
-        });
-    }
-};
+//         logger.info("Success get all mentees");
+//         res.status(200).send({
+//             status: true,
+//             statusCode: 200,
+//             message: "Success get all mentees",
+//             data: mentees,
+//         });
+//     } catch (error) {
+//         logger.info(`ERR: mentees - get all = ${error}`);
+//         res.status(422).send({
+//             status: false,
+//             statusCode: 422,
+//             message: error,
+//         });
+//     }
+// };
 
-export const getMenteeByIdController = async (req: Request, res: Response) => {
-    try {
-        const {
-            params: { user_id },
-        } = req;
+// export const getMenteeByIdController = async (req: Request, res: Response) => {
+//     try {
+//         const {
+//             params: { user_id },
+//         } = req;
 
-        const mentee = await findMenteeById(user_id);
+//         const mentee = await findMenteeById(user_id);
 
-        if (mentee) {
-            logger.info("Success find mentee");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success find mentee",
-                data: mentee,
-            });
-        } else {
-            logger.info("Mentee not found!");
-            res.status(404).send({
-                status: false,
-                statusCode: 404,
-                message: "Mentee not found!",
-                data: {},
-            });
-        }
-    } catch (error) {
-        logger.info(`ERR: mentee - get by id = ${error}`);
-        res.status(422).send({
-            status: false,
-            statusCode: 422,
-            message: error,
-        });
-    }
-};
+//         if (mentee) {
+//             logger.info("Success find mentee");
+//             res.status(200).send({
+//                 status: true,
+//                 statusCode: 200,
+//                 message: "Success find mentee",
+//                 data: mentee,
+//             });
+//         } else {
+//             logger.info("Mentee not found!");
+//             res.status(404).send({
+//                 status: false,
+//                 statusCode: 404,
+//                 message: "Mentee not found!",
+//                 data: {},
+//             });
+//         }
+//     } catch (error) {
+//         logger.info(`ERR: mentee - get by id = ${error}`);
+//         res.status(422).send({
+//             status: false,
+//             statusCode: 422,
+//             message: error,
+//         });
+//     }
+// };
+
+// export const getAllMenteesByIdProgramController = async (req: Request, res: Response): Promise<void> => {
+//     try {
+//         const {
+//             query: { name },
+//         } = req;
+
+//         // let mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
+
+//         // if (!mentees) {
+//         //     logger.info("Internal server error!");
+//         //     res.status(500).send({
+//         //         status: false,
+//         //         statusCode: 500,
+//         //         message: "Internal server error",
+//         //         data: [],
+//         //     });
+//         //     return;
+//         // }
+
+//         // const user = res.locals.user;
+//         // if (user._doc.role === "mentor") {
+//         //     const programs = await getAllProgramsByIdMentorRepo(user._doc.user_id);
+//         //     if (!programs) {
+//         //         logger.info("Internal server error!");
+//         //         res.status(500).send({
+//         //             status: false,
+//         //             statusCode: 500,
+//         //             message: "Internal server error",
+//         //             data: [],
+//         //         });
+//         //         return;
+//         //     }
+
+//         //     let menteeMapper = [];
+//         //     for (const program of programs) {
+//         //         const applicants = await getManyApplicantsByIdProgram(program.program_id);
+//         //         if (!applicants) {
+//         //             logger.info("Internal server error!");
+//         //             res.status(500).send({
+//         //                 status: false,
+//         //                 statusCode: 500,
+//         //                 message: "Internal server error",
+//         //                 data: [],
+//         //             });
+//         //             return;
+//         //         }
+
+//         //         const menteesOfPRogram = mentees.filter((mentee) => {
+//         //             program.program_id = mentee.user_id;
+//         //         });
+//         //     }
+//         // }
+
+//         logger.info("Success get all mentees");
+//         res.status(200).send({
+//             status: true,
+//             statusCode: 200,
+//             message: "Success get all mentees",
+//             data: mentees,
+//         });
+//     } catch (error) {
+//         logger.info(`ERR: mentees - get all = ${error}`);
+//         res.status(422).send({
+//             status: false,
+//             statusCode: 422,
+//             message: error,
+//         });
+//     }
+// };
+
+// export const getMenteeByIdAndIdProgramController = async (req: Request, res: Response) => {
+//     try {
+//         const {
+//             params: { user_id },
+//         } = req;
+
+//         const mentee = await findMenteeById(user_id);
+
+//         if (mentee) {
+//             logger.info("Success find mentee");
+//             res.status(200).send({
+//                 status: true,
+//                 statusCode: 200,
+//                 message: "Success find mentee",
+//                 data: mentee,
+//             });
+//         } else {
+//             logger.info("Mentee not found!");
+//             res.status(404).send({
+//                 status: false,
+//                 statusCode: 404,
+//                 message: "Mentee not found!",
+//                 data: {},
+//             });
+//         }
+//     } catch (error) {
+//         logger.info(`ERR: mentee - get by id = ${error}`);
+//         res.status(422).send({
+//             status: false,
+//             statusCode: 422,
+//             message: error,
+//         });
+//     }
+// };
 
 export const updateUserController = async (req: Request, res: Response) => {
     const {

@@ -9,7 +9,7 @@ import {
     searchApplicantsRepo,
     updateApplicantRepo,
 } from "../services/applicant.service";
-import { getProgramByIdRepo } from "../services/program.service";
+import { getAllProgramsByIdMentorRepo, getProgramByIdRepo } from "../services/program.service";
 import logger from "../utils/logger";
 import { uploadAndDelete } from "../utils/uploadToDrive";
 import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
@@ -28,10 +28,10 @@ export const addApplicantController = async (req: Request, res: Response): Promi
     } else {
         try {
             const user = res.locals.user;
-            const userId = user._doc.user_id
-            const userEmail = user._doc.email
+            const userId = user._doc.user_id;
+            const userEmail = user._doc.email;
 
-            if (userId !== value.user_id && userEmail !== value.email) {
+            if (userId !== value.user_id || userEmail !== value.email) {
                 logger.info("ERR: applicant - add = user does not valid");
                 res.status(422).send({
                     status: false,
@@ -118,15 +118,7 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
 
         const applicants = name ? await searchApplicantsRepo(name.toString()) : await getApplicantsRepo();
 
-        if (applicants) {
-            logger.info("Success get all applicants data");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success get all applicants data",
-                data: applicants,
-            });
-        } else {
+        if (!applicants) {
             logger.info("Internal server error");
             res.status(500).send({
                 status: false,
@@ -134,13 +126,54 @@ export const getAllApplicantsController = async (req: Request, res: Response): P
                 message: "Internal server error",
                 data: [],
             });
+            return;
         }
-    } catch (error) {
+
+        const user = res.locals.user;
+        const isMentor = user._doc.role === "mentor";
+        const userId = user._doc.user_id;
+
+        if (isMentor) {
+            const findPrograms = await getAllProgramsByIdMentorRepo(userId);
+            if (!findPrograms || findPrograms.length === 0) {
+                logger.info("Mentor has no program");
+                res.status(500).send({
+                    status: false,
+                    statusCode: 500,
+                    message: "Mentor has no program",
+                    data: [],
+                });
+                return;
+            }
+
+            const mentorProgramIds = findPrograms.map(program => program.program_id)
+            const applicantsFiltered = applicants.filter(applicant =>
+                mentorProgramIds.includes(applicant.program_id)
+            )
+
+            logger.info("Success get all applicants data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success get all applicants data",
+                data: applicantsFiltered,
+            });
+            return;
+        }
+
+        logger.info("Success get all applicants data");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get all applicants data",
+            data: applicants,
+        });
+    } catch (error: any) {
         logger.info(`ERR: applicants - get all = ${error}`);
         res.status(422).send({
             status: false,
             statusCode: 422,
-            message: error,
+            message: error.message || error,
         });
     }
 };
@@ -153,15 +186,7 @@ export const getApplicantByIdController = async (req: Request, res: Response): P
     try {
         const applicant = await getApplicantByIdRepo(applicant_id);
 
-        if (applicant) {
-            logger.info("Success get applicant data");
-            res.status(200).send({
-                status: true,
-                statusCode: 200,
-                message: "Success get applicant data",
-                data: applicant,
-            });
-        } else {
+        if (!applicant) {
             logger.info("Applicant data not found!");
             res.status(404).send({
                 status: false,
@@ -169,7 +194,16 @@ export const getApplicantByIdController = async (req: Request, res: Response): P
                 message: "Applicant data not found!",
                 data: {},
             });
+            return;
         }
+
+        logger.info("Success get applicant data");
+        res.status(200).send({
+            status: true,
+            statusCode: 200,
+            message: "Success get applicant data",
+            data: applicant,
+        });
     } catch (error) {
         logger.info(`ERR: applicant - get by id = ${error}`);
         res.status(422).send({

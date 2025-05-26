@@ -23,6 +23,10 @@ export const getProgramByIdRepo = async (id: string) => {
     return await programModel.findOne({ program_id: id });
 };
 
+export const getAllProgramsByIdMentorRepo = async (id: string) => {
+    return await programModel.find({ user_id: id });
+};
+
 export const updateProgramRepo = async (id: string, payload: ProgramInterface) => {
     return await programModel.findOneAndUpdate({ program_id: id }, { $set: payload });
 };
