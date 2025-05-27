@@ -24,32 +24,35 @@ import {
 } from "../validations/program.validation";
 
 export const createProgramController = async (req: Request, res: Response): Promise<void> => {
-    req.body.program_id = uuidv4();
-    const { error, value } = createProgramValidation(req.body);
-
-    if (error) {
-        logger.info(`ERR: program - create = ${error.details[0].message}`);
-        res.status(422).json({
-            status: false,
-            statusCode: 422,
-            message: error.details[0].message,
-        });
-        return;
-    }
-
     try {
         const existingMentor = await findUserRepo().then((mentors) =>
             mentors.find((mentor) => {
-                mentor.email.toLowerCase() === value.mentor_email.toLowerCase() && mentor.user_id === value.user_id;
+                return (
+                    mentor.email.toLowerCase() === value.mentor_email.toLowerCase() && mentor.user_id === value.user_id
+                );
             })
         );
 
         if (!existingMentor) {
-            logger.info("Mentor not assigned yet");
+            logger.info("User with input email are not exist");
             res.status(404).json({
                 status: false,
                 statusCode: 404,
-                message: "Mentor not assigned yet",
+                message: "User with input email are not exist",
+            });
+            return;
+        }
+
+        req.body.program_id = uuidv4();
+        req.body.user_id = existingMentor.user_id;
+        const { error, value } = createProgramValidation(req.body);
+
+        if (error) {
+            logger.info(`ERR: program - create = ${error.details[0].message}`);
+            res.status(422).json({
+                status: false,
+                statusCode: 422,
+                message: error.details[0].message,
             });
             return;
         }
@@ -83,13 +86,15 @@ export const getAllProgramsController = async (req: Request, res: Response): Pro
             query: { title },
         } = req;
 
-        const user = res?.locals.user
-        const userId = user?._doc.user_id
-        const isMentor = user?._doc.role === "mentor"
+        const user = res?.locals.user;
+        const userId = user?._doc.user_id;
+        const isMentor = user?._doc.role === "mentor";
 
         let programs;
         if (isMentor) {
-            programs = title ? await searchProgramByIdMentorRepo(userId, title.toString()) : await getAllProgramsByIdMentorRepo(userId);            
+            programs = title
+                ? await searchProgramByIdMentorRepo(userId, title.toString())
+                : await getAllProgramsByIdMentorRepo(userId);
         } else {
             programs = title ? await searchProgramRepo(title.toString()) : await getAllProgramsRepo();
         }
@@ -177,7 +182,9 @@ export const updateProgramController = async (req: Request, res: Response): Prom
     try {
         if (value.mentor_email) {
             const existingMentor = await findUserRepo().then((mentors) =>
-                mentors.find((mentor) => mentor.email.toLowerCase() === value.mentor_email.toLowerCase())
+                mentors.find((mentor) => {
+                    return mentor.email.toLowerCase() === value.mentor_email.toLowerCase();
+                })
             );
 
             if (!existingMentor) {

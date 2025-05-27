@@ -17,30 +17,31 @@ import logger from "../utils/logger";
 import { requestProgramValidation, updateRequestProgramValidation } from "../validations/requestProgram.validation";
 
 export const requestingProgramController = async (req: Request, res: Response): Promise<void> => {
-    req.body.reqProgram_id = uuidv4();
-    const { error, value } = requestProgramValidation(req.body);
-
-    if (error) {
-        logger.info(`ERR: request program - create = ${error.details[0].message}`);
-        res.status(422).json({
-            status: false,
-            statusCode: 422,
-            message: error.details[0].message,
-        });
-        return;
-    }
-
     try {
         const user = res.locals.user;
-        const mentorId = user._doc.user_id
-        const mentorEmail = user._doc.email
+        const mentorId = user._doc.user_id;
+        const mentorEmail = user._doc.email;
 
-        if (mentorId !== value.user_id && mentorEmail !== value.mentor_email) {
+        if (mentorEmail !== req.body.mentor_email) {
             logger.info("ERR: request program - create = user does not valid");
             res.status(422).json({
                 status: false,
                 statusCode: 422,
                 message: "user does not valid",
+            });
+            return;
+        }
+
+        req.body.reqProgram_id = uuidv4();
+        req.body.user_id = mentorId;
+        const { error, value } = requestProgramValidation(req.body);
+
+        if (error) {
+            logger.info(`ERR: request program - create = ${error.details[0].message}`);
+            res.status(422).json({
+                status: false,
+                statusCode: 422,
+                message: error.details[0].message,
             });
             return;
         }
