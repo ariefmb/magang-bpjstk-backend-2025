@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { deleteApplicantRepo, getManyApplicantsByIdProgram } from "../services/applicant.service";
 import { findUserRepo } from "../services/auth.service";
 import {
     assignReportMenteeByProgram,
@@ -247,9 +248,9 @@ export const deleteProgramController = async (req: Request, res: Response): Prom
             params: { program_id },
         } = req;
 
-        const deletedProgram = await deleteProgramRepo(program_id);
+        const existProgram = getProgramByIdRepo(program_id);
 
-        if (!deletedProgram) {
+        if (!existProgram) {
             logger.info("Program data not found!");
             res.status(404).json({
                 status: false,
@@ -258,6 +259,18 @@ export const deleteProgramController = async (req: Request, res: Response): Prom
             });
             return;
         }
+
+        const mentees = await getManyApplicantsByIdProgram(program_id);
+
+        if (mentees && mentees.length > 0) {
+            for (const mentee of mentees) {
+                await deleteApplicantRepo(mentee.applicant_id);
+            }
+
+            logger.info("Success delete assigned mentees");
+        }
+
+        await deleteProgramRepo(program_id);
 
         logger.info("Success delete program data");
         res.status(200).json({
