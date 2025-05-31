@@ -29,5 +29,5 @@ AuthRouter.get("/all/:user_id", authorization(["admin"]), getUserByIdController)
 AuthRouter.get("/mentor", authorization(["admin"]), getAllMentorsController);
 AuthRouter.get("/mentor/search", authorization(["admin"]), getAllMentorsController);
 AuthRouter.get("/mentor/:user_id", authorization(["admin"]), getMentorByIdController);
-AuthRouter.put("/:user_id", authorization(["admin"]), updateUserController);
+AuthRouter.put("/:user_id", authorization(["admin", "mentor", "mentee"]), updateUserController);
 AuthRouter.delete("/:user_id", authorization(["admin"]), deleteUserController);

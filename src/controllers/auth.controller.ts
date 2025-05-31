@@ -1,19 +1,14 @@
 import { Request, Response } from "express";
-import { getManyApplicantsByIdProgram } from "src/services/applicant.service";
-import { getAllProgramsByIdMentorRepo } from "src/services/program.service";
 import { v4 as uuidv4 } from "uuid";
 import {
     createUserRepo,
     deleteUserByIdRepo,
-    findMenteeById,
     findMentorById,
     findUserByEmail,
     findUserById,
     findUserRepo,
-    getAllMenteesRepo,
     getAllMentorsRepo,
     resetPasswordRepo,
-    searchMenteeRepo,
     searchMentorRepo,
     searchUserRepo,
     updateUserByIdRepo,
@@ -450,225 +445,63 @@ export const getMentorByIdController = async (req: Request, res: Response) => {
     }
 };
 
-// export const getAllMenteesController = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//         const {
-//             query: { name },
-//         } = req;
-
-//         const mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
-
-//         if (!mentees) {
-//             logger.info("Internal server error!");
-//             res.status(500).send({
-//                 status: false,
-//                 statusCode: 500,
-//                 message: "Internal server error",
-//                 data: [],
-//             });
-//             return;
-//         }
-
-//         logger.info("Success get all mentees");
-//         res.status(200).send({
-//             status: true,
-//             statusCode: 200,
-//             message: "Success get all mentees",
-//             data: mentees,
-//         });
-//     } catch (error) {
-//         logger.info(`ERR: mentees - get all = ${error}`);
-//         res.status(422).send({
-//             status: false,
-//             statusCode: 422,
-//             message: error,
-//         });
-//     }
-// };
-
-// export const getMenteeByIdController = async (req: Request, res: Response) => {
-//     try {
-//         const {
-//             params: { user_id },
-//         } = req;
-
-//         const mentee = await findMenteeById(user_id);
-
-//         if (mentee) {
-//             logger.info("Success find mentee");
-//             res.status(200).send({
-//                 status: true,
-//                 statusCode: 200,
-//                 message: "Success find mentee",
-//                 data: mentee,
-//             });
-//         } else {
-//             logger.info("Mentee not found!");
-//             res.status(404).send({
-//                 status: false,
-//                 statusCode: 404,
-//                 message: "Mentee not found!",
-//                 data: {},
-//             });
-//         }
-//     } catch (error) {
-//         logger.info(`ERR: mentee - get by id = ${error}`);
-//         res.status(422).send({
-//             status: false,
-//             statusCode: 422,
-//             message: error,
-//         });
-//     }
-// };
-
-// export const getAllMenteesByIdProgramController = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//         const {
-//             query: { name },
-//         } = req;
-
-//         // let mentees = name ? await searchMenteeRepo(name.toString()) : await getAllMenteesRepo();
-
-//         // if (!mentees) {
-//         //     logger.info("Internal server error!");
-//         //     res.status(500).send({
-//         //         status: false,
-//         //         statusCode: 500,
-//         //         message: "Internal server error",
-//         //         data: [],
-//         //     });
-//         //     return;
-//         // }
-
-//         // const user = res.locals.user;
-//         // if (user._doc.role === "mentor") {
-//         //     const programs = await getAllProgramsByIdMentorRepo(user._doc.user_id);
-//         //     if (!programs) {
-//         //         logger.info("Internal server error!");
-//         //         res.status(500).send({
-//         //             status: false,
-//         //             statusCode: 500,
-//         //             message: "Internal server error",
-//         //             data: [],
-//         //         });
-//         //         return;
-//         //     }
-
-//         //     let menteeMapper = [];
-//         //     for (const program of programs) {
-//         //         const applicants = await getManyApplicantsByIdProgram(program.program_id);
-//         //         if (!applicants) {
-//         //             logger.info("Internal server error!");
-//         //             res.status(500).send({
-//         //                 status: false,
-//         //                 statusCode: 500,
-//         //                 message: "Internal server error",
-//         //                 data: [],
-//         //             });
-//         //             return;
-//         //         }
-
-//         //         const menteesOfPRogram = mentees.filter((mentee) => {
-//         //             program.program_id = mentee.user_id;
-//         //         });
-//         //     }
-//         // }
-
-//         logger.info("Success get all mentees");
-//         res.status(200).send({
-//             status: true,
-//             statusCode: 200,
-//             message: "Success get all mentees",
-//             data: mentees,
-//         });
-//     } catch (error) {
-//         logger.info(`ERR: mentees - get all = ${error}`);
-//         res.status(422).send({
-//             status: false,
-//             statusCode: 422,
-//             message: error,
-//         });
-//     }
-// };
-
-// export const getMenteeByIdAndIdProgramController = async (req: Request, res: Response) => {
-//     try {
-//         const {
-//             params: { user_id },
-//         } = req;
-
-//         const mentee = await findMenteeById(user_id);
-
-//         if (mentee) {
-//             logger.info("Success find mentee");
-//             res.status(200).send({
-//                 status: true,
-//                 statusCode: 200,
-//                 message: "Success find mentee",
-//                 data: mentee,
-//             });
-//         } else {
-//             logger.info("Mentee not found!");
-//             res.status(404).send({
-//                 status: false,
-//                 statusCode: 404,
-//                 message: "Mentee not found!",
-//                 data: {},
-//             });
-//         }
-//     } catch (error) {
-//         logger.info(`ERR: mentee - get by id = ${error}`);
-//         res.status(422).send({
-//             status: false,
-//             statusCode: 422,
-//             message: error,
-//         });
-//     }
-// };
-
 export const updateUserController = async (req: Request, res: Response) => {
-    const {
-        params: { user_id },
-    } = req;
-    const { error, value } = updateUserValidation(req.body);
+    try {
+        const user = res.locals.user;
+        const userEmail = user._doc.email;
 
-    if (error) {
-        logger.error(`ERR: user - update = ${error.details[0].message}`);
-        res.status(422).send({
-            status: false,
-            statusCode: 422,
-            message: error.details[0].message,
-        });
-    } else {
-        try {
-            if (value.password) {
-                value.password = hashing(value.password);
-            }
-            const updateUser = await updateUserByIdRepo(user_id, value);
+        if (userEmail !== req.body.email && user._doc.role !== "admin") {
+            logger.info("ERR: user - update = this user have no access");
+            res.status(422).json({
+                status: false,
+                statusCode: 422,
+                message: "this user have no access",
+            });
+            return;
+        }
 
-            if (updateUser) {
-                logger.info("Success update user data");
-                res.status(200).send({
-                    status: true,
-                    statusCode: 200,
-                    message: "Success update user data",
-                });
-            } else {
-                logger.info("User not found!");
-                res.status(404).send({
-                    status: false,
-                    statusCode: 404,
-                    message: "User not found!",
-                });
-            }
-        } catch (error) {
-            logger.error(`ERR: user - update = ${error}`);
+        const {
+            params: { user_id },
+        } = req;
+        const { error, value } = updateUserValidation(req.body);
+
+        if (error) {
+            logger.error(`ERR: user - update = ${error.details[0].message}`);
             res.status(422).send({
                 status: false,
                 statusCode: 422,
-                message: error,
+                message: error.details[0].message,
+            });
+            return;
+        }
+
+        if (value.password) {
+            value.password = hashing(value.password);
+        }
+        const updateUser = await updateUserByIdRepo(user_id, value);
+
+        if (updateUser) {
+            logger.info("Success update user data");
+            res.status(200).send({
+                status: true,
+                statusCode: 200,
+                message: "Success update user data",
+            });
+        } else {
+            logger.info("User not found!");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "User not found!",
             });
         }
+    } catch (error) {
+        logger.error(`ERR: user - update = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
     }
 };
 
