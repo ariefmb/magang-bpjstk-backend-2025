@@ -25,86 +25,87 @@ export const addApplicantController = async (req: Request, res: Response): Promi
             statusCode: 422,
             message: error.details[0].message,
         });
-    } else {
-        try {
-            const user = res.locals.user;
+        return;
+    }
 
-            if (user._doc.email !== value.email) {
-                logger.info("ERR: applicant - add = user email does not valid");
-                res.status(422).send({
-                    status: false,
-                    statusCode: 422,
-                    message: "user email does not valid",
-                });
-            } else {
-                const programExist = await getProgramByIdRepo(value.program_id);
+    try {
+        const user = res.locals.user;
 
-                if (!programExist) {
-                    logger.info("ERR: applicant - add = program does not exist");
-                    res.status(404).send({
-                        status: false,
-                        statusCode: 404,
-                        message: "program does not exist",
-                    });
-                } else {
-                    if (programExist.status !== "Active") {
-                        logger.info("ERR: applicant - add = program does not open");
-                        res.status(422).send({
-                            status: false,
-                            statusCode: 422,
-                            message: "program does not open",
-                        });
-                        return;
-                    }
-
-                    const applicantsExist = await getApplicantsByEmailRepo(value.email);
-
-                    const hasOnGoingProgram = applicantsExist.some(
-                        (applicant) => !["Off Boarding", "Rejected"].includes(applicant.status)
-                    );
-
-                    if (hasOnGoingProgram) {
-                        logger.info("ERR: applicant - add = applicant has on going program");
-                        res.status(422).send({
-                            status: false,
-                            statusCode: 422,
-                            message: "Applicant has on going program",
-                        });
-                        return;
-                    }
-
-                    const files = req.files as {
-                        [fieldname: string]: Express.Multer.File[];
-                    };
-
-                    const applicantDataMapper = {
-                        ...value,
-                        photo: await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]),
-                        suratPengantar: await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]),
-                        cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
-                        portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
-                    };
-
-                    console.log("applicantDataMapper", applicantDataMapper);
-
-                    await addApplicantRepo(applicantDataMapper);
-                    logger.info("Success add new applicant");
-                    res.status(201).send({
-                        status: true,
-                        statusCode: 201,
-                        message: "Success add new applicant",
-                        data: value,
-                    });
-                }
-            }
-        } catch (error) {
-            logger.info(`ERR: applicant - add = ${error}`);
+        if (user._doc.email !== value.email) {
+            logger.info("ERR: applicant - add = user email does not valid");
             res.status(422).send({
                 status: false,
                 statusCode: 422,
-                message: error instanceof Error ? error.message : error,
+                message: "user email does not valid",
             });
+            return;
         }
+
+        const programExist = await getProgramByIdRepo(value.program_id);
+
+        if (!programExist) {
+            logger.info("ERR: applicant - add = program does not exist");
+            res.status(404).send({
+                status: false,
+                statusCode: 404,
+                message: "program does not exist",
+            });
+            return;
+        }
+
+        if (programExist.status !== "Active") {
+            logger.info("ERR: applicant - add = program does not open");
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: "program does not open",
+            });
+            return;
+        }
+
+        const applicantsExist = await getApplicantsByEmailRepo(value.email);
+
+        const hasOnGoingProgram = applicantsExist.some(
+            (applicant) => !["Off Boarding", "Rejected"].includes(applicant.status)
+        );
+
+        if (hasOnGoingProgram) {
+            logger.info("ERR: applicant - add = applicant has on going program");
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: "Applicant has on going program",
+            });
+            return;
+        }
+
+        const files = req.files as {
+            [fieldname: string]: Express.Multer.File[];
+        };
+
+        const applicantDataMapper = {
+            ...value,
+            photo: await uploadAndDelete(files.photo[0], ["jpg", "jpeg", "png"]),
+            suratPengantar: await uploadAndDelete(files.suratPengantar[0], ["pdf", "docx"]),
+            cv: await uploadAndDelete(files.cv[0], ["pdf", "docx"]),
+            portfolio: await uploadAndDelete(files.portfolio[0], ["pdf", "docx"]),
+        };
+
+        await addApplicantRepo(applicantDataMapper);
+        logger.info("Success add new applicant");
+        res.status(201).send({
+            status: true,
+            statusCode: 201,
+            message: "Success add new applicant",
+            data: value,
+        });
+    } catch (error) {
+        logger.info(`ERR: applicant - add = ${error}`);
+        res.status(422).send({
+            status: false,
+            statusCode: 422,
+            message: error instanceof Error ? error.message : error,
+        });
     }
 };
 
@@ -179,30 +180,30 @@ export const getApplicantByIdController = async (req: Request, res: Response) =>
 };
 
 export const updateApplicantController = async (req: Request, res: Response): Promise<void> => {
-    const {
-        params: { applicant_id },
-    } = req;
-    const { error, value } = updateApplicantValidation(req.body, req.body.journey);
-
-    if (error) {
-        logger.info(`ERR: applicant - update = ${error.details[0].message}`);
-        res.status(422).send({
-            status: false,
-            statusCode: 422,
-            message: error.details[0].message,
-        });
-        return;
-    }
-
     try {
         const user = res.locals.user;
 
-        if (user._doc.email !== value.email && user._doc.role !== "admin") {
+        if (user._doc.email !== req.body.email && user._doc.role !== "admin") {
             logger.info("ERR: applicant - update = this user have no access");
             res.status(422).send({
                 status: false,
                 statusCode: 422,
                 message: "this user have no access",
+            });
+            return;
+        }
+
+        const {
+            params: { applicant_id },
+        } = req;
+        const { error, value } = updateApplicantValidation(req.body, req.body.journey);
+
+        if (error) {
+            logger.info(`ERR: applicant - update = ${error.details[0].message}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error.details[0].message,
             });
             return;
         }
