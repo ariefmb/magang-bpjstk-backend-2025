@@ -5,7 +5,9 @@ export interface UserInterface {
     contact: string;
     password: string;
     role: string;
+    photo: string;
     verified: boolean;
+    unit: string;
 }
 
 export interface UserSessionInterface {

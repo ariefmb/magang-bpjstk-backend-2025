@@ -14,6 +14,7 @@ import {
     updateUserController,
 } from "../controllers/auth.controller";
 import { authorization } from "../middleware/authorization";
+import { uploadFiles } from "../middleware/uploadFile";
 
 export const AuthRouter: Router = Router();
 
@@ -29,5 +30,10 @@ AuthRouter.get("/all/:user_id", authorization(["admin"]), getUserByIdController)
 AuthRouter.get("/mentor", authorization(["admin"]), getAllMentorsController);
 AuthRouter.get("/mentor/search", authorization(["admin"]), getAllMentorsController);
 AuthRouter.get("/mentor/:user_id", authorization(["admin"]), getMentorByIdController);
-AuthRouter.put("/:user_id", authorization(["admin", "mentor", "mentee"]), updateUserController);
+AuthRouter.put(
+    "/:user_id",
+    authorization(["admin", "mentor", "mentee"]),
+    uploadFiles.fields([{ name: "photo", maxCount: 1 }]),
+    updateUserController
+);
 AuthRouter.delete("/:user_id", authorization(["admin"]), deleteUserController);

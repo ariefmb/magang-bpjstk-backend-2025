@@ -35,10 +35,18 @@ const userSchema = new mongoose.Schema<UserInterface>(
             default: "mentee",
             lowercase: true,
         },
+        photo: {
+            type: String,
+            default: "",
+        },
         verified: {
             type: Boolean,
             required: true,
             default: false,
+        },
+        unit: {
+            type: String,
+            default: "",
         },
     },
     { timestamps: true }

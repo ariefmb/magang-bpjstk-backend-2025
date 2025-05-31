@@ -1,7 +1,11 @@
 import Joi from "joi";
 import { resetPasswordInterface, UserInterface } from "../interfaces/user.interface";
 
-export const createUserValidation = (payload: UserInterface) => {
+export const createUserValidation = (payload: UserInterface, isMentor: boolean) => {
+    let additionalSchema = {};
+
+    if (isMentor) additionalSchema = { unit: Joi.string().required() };
+
     const schema = Joi.object({
         user_id: Joi.string().required(),
         email: Joi.string().email().lowercase().trim().required(),
@@ -10,6 +14,7 @@ export const createUserValidation = (payload: UserInterface) => {
         password: Joi.string().required(),
         role: Joi.string().valid("super admin", "admin", "mentor", "mentee").lowercase().default("mentee"),
         verified: Joi.boolean().default(false),
+        ...additionalSchema,
     });
 
     return schema.validate(payload);
@@ -50,14 +55,15 @@ export const resetPasswordValidation = (payload: resetPasswordInterface) => {
     return schema.validate(payload);
 };
 
-export const updateUserValidation = (payload: UserInterface) => {
+export const updateUserValidation = (payload: UserInterface, isMentor: boolean) => {
+    let additionalSchema = {};
+
+    if (isMentor) additionalSchema = { unit: Joi.string() };
+
     const schema = Joi.object({
-        email: Joi.string().email().lowercase().trim(),
         name: Joi.string().trim(),
         contact: Joi.string(),
-        password: Joi.string(),
-        role: Joi.string().valid("super admin", "admin", "mentor", "mentee").lowercase(),
-        verified: Joi.boolean(),
+        ...additionalSchema,
     });
 
     return schema.validate(payload);
