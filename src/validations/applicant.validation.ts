@@ -32,9 +32,14 @@ const baseSchema = {
     major: Joi.string(),
     semester: Joi.number().default(1),
     no_suratPengantar: Joi.string(),
-    journey: Joi.string()
-        .valid("Administration", "Interview", "Offering", "Confirmation", "Working Experience", "Graduation")
-        .default("Administration"),
+    journey: Joi.string().valid(
+        "Administration",
+        "Interview",
+        "Offering",
+        "Confirmation",
+        "Working Experience",
+        "Graduation"
+    ),
     status: Joi.string().valid("Approved", "Rejected", "On Going", "Waiting").default("Waiting"),
 };
 
@@ -58,6 +63,14 @@ export const updateApplicantValidation = (payload: ApplicantInterface, journey?:
     const Schema = Joi.object({
         ...baseSchema,
         ...additionalSchema,
+    });
+
+    return Schema.validate(payload);
+};
+
+export const approvalJourneyMenteeValidation = (payload: ApplicantInterface) => {
+    const Schema = Joi.object({
+        status: Joi.string().required().valid("Approved", "Rejected"),
     });
 
     return Schema.validate(payload);

@@ -12,7 +12,11 @@ import {
 import { getAllProgramsByIdMentorRepo, getProgramByIdRepo } from "../services/program.service";
 import logger from "../utils/logger";
 import { uploadAndDelete } from "../utils/uploadToDrive";
-import { addApplicantValidation, updateApplicantValidation } from "../validations/applicant.validation";
+import {
+    addApplicantValidation,
+    approvalJourneyMenteeValidation,
+    updateApplicantValidation,
+} from "../validations/applicant.validation";
 
 export const addApplicantController = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -243,6 +247,28 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
             return;
         }
 
+        const existApplicant = await getApplicantByIdRepo(applicant_id);
+
+        if (!existApplicant) {
+            logger.info("Applicant data not found!");
+            res.status(404).json({
+                status: false,
+                statusCode: 404,
+                message: "Applicant data not found!",
+            });
+            return;
+        }
+
+        if (existApplicant.status === "Rejected") {
+            logger.info("Applicant data can not be update!");
+            res.status(422).json({
+                status: false,
+                statusCode: 422,
+                message: "Applicant data can not be update!",
+            });
+            return;
+        }
+
         const files = req.files as {
             [fieldname: string]: Express.Multer.File[];
         };
@@ -267,7 +293,42 @@ export const updateApplicantController = async (req: Request, res: Response): Pr
                 "docx",
             ]);
 
-        const updateData = await updateApplicantRepo(applicant_id, applicantDataMapper);
+        await updateApplicantRepo(applicant_id, applicantDataMapper);
+
+        logger.info("Success update applicant data");
+        res.status(200).json({
+            status: true,
+            statusCode: 200,
+            message: "Success update applicant data",
+        });
+    } catch (error) {
+        logger.error(`ERR: applicant - update = ${error}`);
+        res.status(422).json({
+            status: false,
+            statusCode: 422,
+            message: error,
+        });
+    }
+};
+
+export const approvedJourneyMentee = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {
+            params: { applicant_id },
+        } = req;
+        const { error, value } = approvalJourneyMenteeValidation(req.body);
+
+        if (error) {
+            logger.info(`ERR: applicant - approval = ${error.details[0].message}`);
+            res.status(422).send({
+                status: false,
+                statusCode: 422,
+                message: error.details[0].message,
+            });
+            return;
+        }
+
+        const updateData = await updateApplicantRepo(applicant_id, value);
 
         if (!updateData) {
             logger.info("Applicant data not found!");

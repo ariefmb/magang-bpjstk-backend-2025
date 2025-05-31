@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
     addApplicantController,
+    approvedJourneyMentee,
     deleteApplicantController,
     getAllApplicantsController,
     getApplicantByIdController,
@@ -39,4 +40,5 @@ ApplicantRouter.put(
     ]),
     updateApplicantController
 );
+ApplicantRouter.put("/approval/:applicant_id", authorization(["admin", "mentor"]), approvedJourneyMentee);
 ApplicantRouter.delete("/:applicant_id", authorization(["admin"]), deleteApplicantController);
