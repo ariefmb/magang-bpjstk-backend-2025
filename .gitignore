@@ -9,7 +9,7 @@
 /dist
 /uploads
 /src/dev
-/src/__test__/
+/src/__test__
 
 # Misc
 DS_Store
