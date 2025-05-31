@@ -12,7 +12,11 @@ const applicantSchema = new mongoose.Schema<ApplicantInterface>(
             type: String,
             ref: "program",
             required: true,
-            unique: true,
+        },
+        user_id: {
+            type: String,
+            ref: "user",
+            required: true,
         },
         name: {
             type: String,
