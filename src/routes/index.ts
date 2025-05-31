@@ -22,7 +22,6 @@ const _routes: Array<[string, Router]> = [
     ["/journey/assign_zoom", ZoomAssignRouter],
     ["/journey/report_mentee", ReportMenteeRouter],
     ["/journey/certificate_mentee", CertificateMenteeRouter],
-    ["/dev", DevRouter],
 ];
 
 _routes.forEach((route) => {
