@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { getProgramByIdRepo } from "../../services/program.service";
 import { v4 as uuidv4 } from "uuid";
-import { getApplicantByIdRepo } from "../../services/applicant.service";
+import { getApplicantByIdRepo, updateApplicantRepo } from "../../services/applicant.service";
 import {
     addCertificateMenteeRepo,
     deleteCertificateMenteeRepo,
@@ -9,6 +8,7 @@ import {
     getCertificateMenteeByIdRepo,
     updateCertificateMenteeRepo,
 } from "../../services/journey services/certificateMentee.service";
+import { getProgramByIdRepo } from "../../services/program.service";
 import logger from "../../utils/logger";
 import { uploadAndDelete } from "../../utils/uploadToDrive";
 import { addCertificateMenteeValidation } from "../../validations/journey validations/certificateMentee.validation";
@@ -34,7 +34,7 @@ export const addCertificateMenteeController = async (req: Request, res: Response
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: certificate mentee - create = Program data not found",
+                message: "create = Program data not found",
             });
             return;
         }
@@ -45,7 +45,7 @@ export const addCertificateMenteeController = async (req: Request, res: Response
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: certificate mentee - create = Applicant data not found",
+                message: "create = Applicant data not found",
             });
             return;
         }
@@ -55,7 +55,7 @@ export const addCertificateMenteeController = async (req: Request, res: Response
             res.status(404).send({
                 status: false,
                 statusCode: 404,
-                message: "ERR: assign zoom - create = Program data does not valid",
+                message: "Program data does not valid",
             });
             return;
         }
@@ -70,6 +70,35 @@ export const addCertificateMenteeController = async (req: Request, res: Response
         };
 
         await addCertificateMenteeRepo(certificateMenteeDataMapper);
+
+        const updateData = {
+            applicant_id: applicantData.applicant_id,
+            program_id: applicantData.program_id,
+            user_id: applicantData.user_id,
+            name: applicantData.name,
+            nik: applicantData.nik,
+            email: applicantData.email,
+            contact: applicantData.contact,
+            photo: applicantData.photo,
+            institution: applicantData.institution,
+            major: applicantData.major,
+            semester: applicantData.semester,
+            no_suratPengantar: applicantData.no_suratPengantar,
+            suratPengantar: applicantData.suratPengantar,
+            cv: applicantData.cv,
+            portfolio: applicantData.portfolio,
+            no_rekening: applicantData.no_rekening,
+            surat_kuasa: applicantData.surat_kuasa,
+            nama_bukuRek: applicantData.nama_bukuRek,
+            bank: applicantData.bank,
+            surat_perjanjian: applicantData.surat_perjanjian,
+            suratPeminjaman_idCard: applicantData.suratPeminjaman_idCard,
+            journey: applicantData.journey,
+            status: "Off Boarding",
+        };
+
+        await updateApplicantRepo(applicantData.applicant_id, updateData);
+
         logger.info("Success add certificate mentee");
         res.status(201).send({
             status: true,

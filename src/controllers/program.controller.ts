@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { deleteApplicantRepo, getManyApplicantsByIdProgram } from "../services/applicant.service";
+import { deleteApplicantRepo, getManyApplicantsByIdProgram, updateApplicantRepo } from "../services/applicant.service";
 import { findUserRepo } from "../services/auth.service";
 import {
     assignReportMenteeByProgram,
@@ -199,13 +199,56 @@ export const updateProgramController = async (req: Request, res: Response): Prom
             }
         }
 
+        if (value.journey) {
+            if (value.journey === "Graduation") value.status = "Finished";
+
+            const mentees = await getManyApplicantsByIdProgram(program_id);
+            if (mentees && mentees.length > 0) {
+                for (const mentee of mentees) {
+                    if (mentee.status !== "Rejected") {
+                        const updateData = {
+                            applicant_id: mentee.applicant_id,
+                            program_id: mentee.program_id,
+                            user_id: mentee.user_id,
+                            name: mentee.name,
+                            nik: mentee.nik,
+                            email: mentee.email,
+                            contact: mentee.contact,
+                            photo: mentee.photo,
+                            institution: mentee.institution,
+                            major: mentee.major,
+                            semester: mentee.semester,
+                            no_suratPengantar: mentee.no_suratPengantar,
+                            suratPengantar: mentee.suratPengantar,
+                            cv: mentee.cv,
+                            portfolio: mentee.portfolio,
+                            no_rekening: mentee.no_rekening,
+                            surat_kuasa: mentee.surat_kuasa,
+                            nama_bukuRek: mentee.nama_bukuRek,
+                            bank: mentee.bank,
+                            surat_perjanjian: mentee.surat_perjanjian,
+                            suratPeminjaman_idCard: mentee.suratPeminjaman_idCard,
+                            journey: value.journey,
+                            status: "Waiting",
+                        };
+
+                        await updateApplicantRepo(mentee.applicant_id, updateData);
+                    }
+                }
+
+                logger.info("Success update mentees journey");
+            }
+        }
+
         if (value.start_date) {
             value.status = getStatusProgram(value.start_date);
             value.tw = calculateQuarter(value.start_date);
         }
+
         if (value.end_date) {
             value.end_date.setHours(23, 59, 59, 999);
         }
+
         if (value.journey && value.journey === "Offering") value.onBoarding_date.setHours(8, 59, 59, 999);
 
         const updatedData = await updateProgramRepo(program_id, value);
